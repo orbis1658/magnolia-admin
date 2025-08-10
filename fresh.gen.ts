@@ -4,9 +4,12 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
+import * as $api_test from "./routes/api-test.tsx";
 import * as $api_articles_id_ from "./routes/api/articles/[id].ts";
 import * as $api_articles_index from "./routes/api/articles/index.ts";
-import * as $greet_name_ from "./routes/greet/[name].tsx";
+import * as $articles_id_edit from "./routes/articles/[id]/edit.tsx";
+import * as $articles_index from "./routes/articles/index.tsx";
+import * as $articles_new from "./routes/articles/new.tsx";
 import * as $index from "./routes/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import type { Manifest } from "$fresh/server.ts";
@@ -15,9 +18,12 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
+    "./routes/api-test.tsx": $api_test,
     "./routes/api/articles/[id].ts": $api_articles_id_,
     "./routes/api/articles/index.ts": $api_articles_index,
-    "./routes/greet/[name].tsx": $greet_name_,
+    "./routes/articles/[id]/edit.tsx": $articles_id_edit,
+    "./routes/articles/index.tsx": $articles_index,
+    "./routes/articles/new.tsx": $articles_new,
     "./routes/index.tsx": $index,
   },
   islands: {

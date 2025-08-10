@@ -1,14 +1,14 @@
 import { Handlers } from "$fresh/server.ts";
-import { Article } from "../../../types/article.ts";
+import { Article, UpdateArticleRequest } from "../../../types/article.ts";
+import { getArticle, updateArticle, deleteArticle } from "../../../utils/kv.ts";
 
 export const handler: Handlers = {
   async GET(req, ctx) {
     try {
       const { id } = ctx.params;
 
-      // TODO: Deno KVから記事を取得する実装
-      // 現在はダミーデータを返す
-      const article: Article | null = null;
+      // KVから記事を取得
+      const article = await getArticle(id);
 
       if (!article) {
         return new Response(
@@ -24,6 +24,7 @@ export const handler: Handlers = {
         headers: { "Content-Type": "application/json" },
       });
     } catch (error) {
+      console.error("記事取得エラー:", error);
       return new Response(
         JSON.stringify({ error: "記事の取得に失敗しました" }),
         {
@@ -37,10 +38,21 @@ export const handler: Handlers = {
   async PUT(req, ctx) {
     try {
       const { id } = ctx.params;
-      const body = await req.json();
+      const body: UpdateArticleRequest = await req.json();
 
-      // TODO: バリデーション実装
-      // TODO: Deno KVで記事を更新する実装
+      // バリデーション
+      if (Object.keys(body).length === 0) {
+        return new Response(
+          JSON.stringify({ error: "更新するデータが指定されていません" }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      // KVで記事を更新
+      await updateArticle(id, body);
 
       return new Response(
         JSON.stringify({ message: "記事が更新されました" }),
@@ -49,6 +61,18 @@ export const handler: Handlers = {
         }
       );
     } catch (error) {
+      console.error("記事更新エラー:", error);
+      
+      if (error instanceof Error && error.message.includes("記事が見つかりません")) {
+        return new Response(
+          JSON.stringify({ error: "記事が見つかりません" }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ error: "記事の更新に失敗しました" }),
         {
@@ -63,7 +87,8 @@ export const handler: Handlers = {
     try {
       const { id } = ctx.params;
 
-      // TODO: Deno KVから記事を削除する実装
+      // KVから記事を削除
+      await deleteArticle(id);
 
       return new Response(
         JSON.stringify({ message: "記事が削除されました" }),
@@ -72,6 +97,18 @@ export const handler: Handlers = {
         }
       );
     } catch (error) {
+      console.error("記事削除エラー:", error);
+      
+      if (error instanceof Error && error.message.includes("記事が見つかりません")) {
+        return new Response(
+          JSON.stringify({ error: "記事が見つかりません" }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ error: "記事の削除に失敗しました" }),
         {
