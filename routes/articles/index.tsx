@@ -1,5 +1,6 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { Article } from "../../types/article.ts";
+import { requireAuth } from "../../utils/auth-helper.ts";
 
 interface Data {
   articles: Article[];
@@ -12,6 +13,11 @@ interface Data {
 
 export const handler: Handlers<Data> = {
   async GET(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
     try {
       const url = new URL(req.url);
       const page = parseInt(url.searchParams.get("page") || "1");
@@ -20,8 +26,15 @@ export const handler: Handlers<Data> = {
       const tag = url.searchParams.get("tag") || undefined;
 
       const baseUrl = new URL(req.url).origin;
+      const cookie = req.headers.get("cookie") || "";
+      
       const response = await fetch(
-        `${baseUrl}/api/articles?page=${page}&limit=${limit}${category ? `&category=${category}` : ""}${tag ? `&tag=${tag}` : ""}`
+        `${baseUrl}/api/articles?page=${page}&limit=${limit}${category ? `&category=${category}` : ""}${tag ? `&tag=${tag}` : ""}`,
+        {
+          headers: {
+            "Cookie": cookie,
+          },
+        }
       );
       
       if (!response.ok) {
@@ -71,12 +84,20 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
     <div class="container mx-auto p-4">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h1 class="text-2xl sm:text-3xl font-bold">記事一覧</h1>
-        <a
-          href="/articles/new"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center"
-        >
-          新規作成
-        </a>
+        <div class="flex gap-2">
+          <a
+            href="/articles/new"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center"
+          >
+            新規作成
+          </a>
+          <a
+            href="/logout"
+            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-center"
+          >
+            ログアウト
+          </a>
+        </div>
       </div>
 
       {data.error && (

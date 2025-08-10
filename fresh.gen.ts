@@ -11,6 +11,8 @@ import * as $articles_id_edit from "./routes/articles/[id]/edit.tsx";
 import * as $articles_index from "./routes/articles/index.tsx";
 import * as $articles_new from "./routes/articles/new.tsx";
 import * as $index from "./routes/index.tsx";
+import * as $login from "./routes/login.tsx";
+import * as $logout from "./routes/logout.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
@@ -25,6 +27,8 @@ const manifest = {
     "./routes/articles/index.tsx": $articles_index,
     "./routes/articles/new.tsx": $articles_new,
     "./routes/index.tsx": $index,
+    "./routes/login.tsx": $login,
+    "./routes/logout.tsx": $logout,
   },
   islands: {
     "./islands/Counter.tsx": $Counter,

@@ -1,5 +1,6 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { Article } from "../../../types/article.ts";
+import { requireAuth } from "../../../utils/auth-helper.ts";
 
 interface Data {
   article?: Article;
@@ -9,10 +10,21 @@ interface Data {
 
 export const handler: Handlers<Data> = {
   async GET(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
     try {
       const { id } = ctx.params;
       const baseUrl = new URL(req.url).origin;
-      const response = await fetch(`${baseUrl}/api/articles/${id}`);
+      const cookie = req.headers.get("cookie") || "";
+      
+      const response = await fetch(`${baseUrl}/api/articles/${id}`, {
+        headers: {
+          'Cookie': cookie,
+        },
+      });
       
       if (!response.ok) {
         return ctx.render({ error: "記事が見つかりません" });
@@ -27,6 +39,12 @@ export const handler: Handlers<Data> = {
   },
 
   async POST(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+    
     try {
       const { id } = ctx.params;
       const formData = await req.formData();
@@ -72,17 +90,24 @@ export const handler: Handlers<Data> = {
       };
 
       const baseUrl = new URL(req.url).origin;
+      const cookie = req.headers.get("cookie") || "";
+      
       const response = await fetch(`${baseUrl}/api/articles/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Cookie': cookie,
         },
         body: JSON.stringify(articleData),
       });
 
       if (response.ok) {
         // 更新成功後、更新された記事データを取得して再表示
-        const updatedResponse = await fetch(`${baseUrl}/api/articles/${id}`);
+        const updatedResponse = await fetch(`${baseUrl}/api/articles/${id}`, {
+          headers: {
+            'Cookie': cookie,
+          },
+        });
         const updatedArticle = await updatedResponse.json();
         return ctx.render({ 
           article: updatedArticle, 
@@ -328,14 +353,19 @@ export default function EditArticlePage({ data }: PageProps<Data>) {
 
             // 既存のタグがあれば表示
             const existingTags = ${JSON.stringify(article?.tags || [])};
-            if (existingTags.length > 0) {
+            if (existingTags && Array.isArray(existingTags) && existingTags.length > 0) {
               existingTags.forEach((tag, index) => {
                 if (index === 0) {
                   // 最初のタグは既存のフィールドに設定
-                  document.querySelector('input[name="tags[]"]').value = tag;
+                  const firstInput = document.querySelector('input[name="tags[]"]');
+                  if (firstInput && tag) {
+                    firstInput.value = tag;
+                  }
                 } else {
                   // 2番目以降は新しいフィールドを追加
-                  addTagField(tag);
+                  if (tag) {
+                    addTagField(tag);
+                  }
                 }
               });
             }

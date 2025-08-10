@@ -1,9 +1,16 @@
 import { Handlers } from "$fresh/server.ts";
 import { ArticleListResponse, CreateArticleRequest, Article } from "../../../types/article.ts";
 import { getArticles, saveArticle, generateId } from "../../../utils/kv.ts";
+import { requireAuth } from "../../../utils/auth-helper.ts";
 
 export const handler: Handlers = {
   async GET(req) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+    
     try {
       const url = new URL(req.url);
       const page = parseInt(url.searchParams.get("page") || "1");
@@ -40,6 +47,12 @@ export const handler: Handlers = {
   },
 
   async POST(req) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+    
     try {
       console.log("=== API記事作成開始 ===");
       const body: CreateArticleRequest = await req.json();

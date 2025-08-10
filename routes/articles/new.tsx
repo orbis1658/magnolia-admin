@@ -1,4 +1,5 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
+import { requireAuth } from "../../utils/auth-helper.ts";
 
 interface Data {
   error?: string;
@@ -14,7 +15,21 @@ interface Data {
 }
 
 export const handler: Handlers<Data> = {
+  async GET(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+    return ctx.render({ formData: undefined });
+  },
+
   async POST(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
     try {
       console.log("=== 記事作成POST開始 ===");
       const formData = await req.formData();
@@ -61,10 +76,13 @@ export const handler: Handlers<Data> = {
 
       console.log("APIリクエスト送信:", articleData);
       const baseUrl = new URL(req.url).origin;
+      const cookie = req.headers.get("cookie") || "";
+      
       const response = await fetch(`${baseUrl}/api/articles`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cookie': cookie,
         },
         body: JSON.stringify(articleData),
       });
@@ -286,14 +304,19 @@ export default function NewArticlePage({ data }: PageProps<Data>) {
 
             // 既存のタグがあれば表示
             const existingTags = ${JSON.stringify(data?.formData?.tags || [])};
-            if (existingTags.length > 0) {
+            if (existingTags && Array.isArray(existingTags) && existingTags.length > 0) {
               existingTags.forEach((tag, index) => {
                 if (index === 0) {
                   // 最初のタグは既存のフィールドに設定
-                  document.querySelector('input[name="tags[]"]').value = tag;
+                  const firstInput = document.querySelector('input[name="tags[]"]');
+                  if (firstInput && tag) {
+                    firstInput.value = tag;
+                  }
                 } else {
                   // 2番目以降は新しいフィールドを追加
-                  addTagField(tag);
+                  if (tag) {
+                    addTagField(tag);
+                  }
                 }
               });
             }

@@ -1,9 +1,16 @@
 import { Handlers } from "$fresh/server.ts";
 import { Article, UpdateArticleRequest } from "../../../types/article.ts";
 import { getArticle, updateArticle, deleteArticle } from "../../../utils/kv.ts";
+import { requireAuth } from "../../../utils/auth-helper.ts";
 
 export const handler: Handlers = {
   async GET(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+    
     try {
       const { id } = ctx.params;
 
@@ -36,6 +43,12 @@ export const handler: Handlers = {
   },
 
   async PUT(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+    
     try {
       const { id } = ctx.params;
       const body: UpdateArticleRequest = await req.json();
@@ -84,6 +97,12 @@ export const handler: Handlers = {
   },
 
   async DELETE(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+    
     try {
       const { id } = ctx.params;
 

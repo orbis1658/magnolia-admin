@@ -1,5 +1,6 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { Article } from "../types/article.ts";
+import { requireAuth } from "../utils/auth-helper.ts";
 
 interface Data {
   articles: Article[];
@@ -9,6 +10,11 @@ interface Data {
 
 export const handler: Handlers<Data> = {
   async GET(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
     try {
       const baseUrl = new URL(req.url).origin;
       const response = await fetch(`${baseUrl}/api/articles`);

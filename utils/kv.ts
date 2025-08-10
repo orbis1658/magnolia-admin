@@ -10,9 +10,11 @@ export async function getKv() {
     
     if (databaseId) {
       // リモートKVに接続
+      console.log("リモートKVに接続中...");
       return await Deno.openKv(`https://api.deno.com/databases/${databaseId}/connect`);
     } else {
       // ローカルKVに接続（フォールバック）
+      console.log("ローカルKVに接続中...");
       return await Deno.openKv();
     }
   } catch (error) {
