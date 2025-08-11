@@ -20,6 +20,11 @@ jobs:
       with:
         deno-version: v2.x
         
+    - name: Install lftp
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y lftp
+        
     - name: Install dependencies
       run: |
         # lockfileを削除して再生成
@@ -29,7 +34,7 @@ jobs:
     - name: Build static site
       run: |
         cd static-site
-        deno run --allow-net --allow-read --allow-write build.ts
+        deno run --allow-net --allow-read --allow-write --allow-env build.ts
       env:
         DENO_DIR: ${{ github.workspace }}/.deno_dir
         API_URL: ${{ secrets.API_URL || 'http://localhost:8000' }}
