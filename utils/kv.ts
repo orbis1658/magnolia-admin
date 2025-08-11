@@ -5,10 +5,17 @@ import { Article } from "../types/article.ts";
 // KVデータベースの接続
 export async function getKv() {
   try {
-    // 環境変数からデータベースIDを取得
-    const databaseId = Deno.env.get("KV_DATABASE_ID");
+    // Deno Deploy環境ではデフォルトKVを使用
+    if (Deno.env.get("DENO_DEPLOYMENT_ID")) {
+      console.log("Deno Deploy環境: デフォルトKVに接続中...");
+      const kv = await Deno.openKv();
+      console.log("デフォルトKV接続成功");
+      return kv;
+    }
     
-    console.log("KV接続開始 - データベースID:", databaseId ? "設定済み" : "未設定");
+    // 開発環境ではカスタムKVを使用（設定されている場合）
+    const databaseId = Deno.env.get("KV_DATABASE_ID");
+    console.log("開発環境KV接続開始 - データベースID:", databaseId ? "設定済み" : "未設定");
     
     if (databaseId) {
       // リモートKVに接続
