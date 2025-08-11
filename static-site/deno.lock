@@ -85,11 +85,11 @@
     "https://deno.land/std@0.208.0/path/windows/to_namespaced_path.ts": "e0f4d4a5e77f28a5708c1a33ff24360f35637ba6d8f103d19661255ef7bfd50d",
     "https://esm.sh/preact-render-to-string@6.2.2": "3ddfb46f7c9d6de2ae8400cbd6c46a5afd2528721c80641582ab9b881c465417",
     "https://esm.sh/preact-render-to-string@6.2.2/denonext/preact-render-to-string.mjs": "43c273bac17dfa9cdaf439f7bcfdeebecb03de3df9234b6d2d51c6b7994e7514",
-    "https://esm.sh/preact@10.19.6": "281b115a9b79918c6b73382b4e818d6f9e48db9064b7fd4f75a45a4edee54145",
-    "https://esm.sh/preact@10.19.6/jsx-runtime": "f4c9e5f72ef18435eab846ae02e315a63da724f64fb08d806d2ddeaf08d99bd8",
+    "https://esm.sh/preact@10.19.6": "b414713e8e5175b4d58848b921c742a6adef005e9718a25b04337c10fbc04ae7",
+    "https://esm.sh/preact@10.19.6/denonext/jsx-runtime.mjs": "627b6575fca4db5a785f5ed3215124212d0e1aa22ada287962ad2befa8f4fce4",
+    "https://esm.sh/preact@10.19.6/denonext/preact.mjs": "c0291d833b48fbae0c94efedab74390fd782edf63882318f5e10007100f0df75",
+    "https://esm.sh/preact@10.19.6/jsx-runtime": "e818ce449d5b732d384ffec64c1de2b542a5e01eade3d01de5c522ba1e7e8ad1",
     "https://esm.sh/preact@10.27.0/denonext/preact.mjs": "7c0a67d0152259c63d2afea05ce8791f6f4e38ef355fdab8a2c71989cf590c3d",
-    "https://esm.sh/preact@10.27.0?target=denonext": "776698beac034ab4634ae1cebceb6eb73c0e34e236fc72695f59b2a5367ff43e",
-    "https://esm.sh/stable/preact@10.19.6/denonext/jsx-runtime.js": "97e9eeb40443de53a8cb3b70f264d04db2bbfc5c2298fdb15d1c471283ccd6aa",
-    "https://esm.sh/stable/preact@10.19.6/denonext/preact.mjs": "68491395d287895f4d697e403ded5b0ebb8fed0494f9e870c422bc017e5e52f5"
+    "https://esm.sh/preact@10.27.0?target=denonext": "776698beac034ab4634ae1cebceb6eb73c0e34e236fc72695f59b2a5367ff43e"
   }
 }
