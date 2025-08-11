@@ -136,27 +136,11 @@ export async function build(): Promise<void> {
     await ensureDir('dist');
     
     // 記事データを取得
-    let articles = await fetchArticles();
+    const articles = await fetchArticles();
     
     if (articles.length === 0) {
-      log('記事データが取得できませんでした。テスト用データを使用します。', 'info');
-      
-      // テスト用のモックデータ
-      const mockArticles: Article[] = [
-        {
-          id: "mock-1",
-          slug: "test-article",
-          title: "テスト記事",
-          pub_date: new Date().toISOString(),
-          category: "テスト",
-          tags: ["テスト"],
-          body: "<p>これはテスト用の記事です。実際のAPIが利用可能になったら、このモックデータは削除されます。</p>",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-      
-      articles = mockArticles;
+      log('記事データが取得できませんでした', 'error');
+      return;
     }
     
     // ページを生成
