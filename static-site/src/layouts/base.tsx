@@ -16,23 +16,23 @@ export function BaseLayout({ title, description, keywords, children }: BaseLayou
         <title>{title}</title>
         {description && <meta name="description" content={description} />}
         {keywords && <meta name="keywords" content={keywords} />}
-        <link rel="stylesheet" href="/magnolia/assets/css/styles.css" />
+        <link rel="stylesheet" href="https://orbis-pictus.jp/magnolia/assets/css/styles.css" />
       </head>
       <body>
-        <header class="bg-white shadow-sm border-b">
-          <div class="container mx-auto px-4 py-4">
-            <nav class="flex items-center justify-between">
-              <a href="/magnolia/" class="text-2xl font-bold text-gray-900 hover:text-blue-600">
-                Magnolia Blog
-              </a>
-              <div class="hidden md:flex space-x-6">
-                <a href="/magnolia/" class="text-gray-600 hover:text-blue-600">ホーム</a>
-                <a href="/magnolia/category" class="text-gray-600 hover:text-blue-600">カテゴリ</a>
-                <a href="/magnolia/tags" class="text-gray-600 hover:text-blue-600">タグ</a>
-              </div>
-            </nav>
-          </div>
-        </header>
+          <header class="bg-white shadow-sm border-b">
+            <div class="container mx-auto px-4 py-4">
+              <nav class="flex items-center justify-between">
+                <a href="/magnolia/" class="flex items-center">
+                  <img src="/magnolia/assets/img/logo.jpg" alt="マグノリア" class="h-10 w-auto mr-2" />
+                </a>
+                <div class="hidden md:flex space-x-6">
+                  <a href="/magnolia/" class="text-gray-600 hover:text-blue-600">ホーム</a>
+                  <a href="/magnolia/category" class="text-gray-600 hover:text-blue-600">カテゴリ</a>
+                  <a href="/magnolia/tags" class="text-gray-600 hover:text-blue-600">タグ</a>
+                </div>
+              </nav>
+            </div>
+          </header>
 
         <main>
           {children}
@@ -41,7 +41,7 @@ export function BaseLayout({ title, description, keywords, children }: BaseLayou
         <footer class="bg-gray-50 border-t mt-16">
           <div class="container mx-auto px-4 py-8">
             <div class="text-center text-gray-600">
-              <p>&copy; 2024 Magnolia Blog. All rights reserved.</p>
+              <p>&copy; 2025 magnolia. All rights reserved.</p>
             </div>
           </div>
         </footer>

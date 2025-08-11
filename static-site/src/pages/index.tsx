@@ -38,13 +38,25 @@ export function IndexPage({ articles }: IndexPageProps) {
     >
       <div class="container mx-auto px-4 py-8">
         {/* ヒーローセクション */}
-        <section class="text-center mb-12">
-          <h1 class="text-5xl font-bold text-gray-900 mb-4">
-            Magnolia Blog
-          </h1>
-          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        <section
+          class="text-center mb-12 relative overflow-hidden rounded-lg py-24"
+        >
+          <div
+            aria-hidden="true"
+            style="
+              position: absolute;
+              inset: 0;
+              z-index: 0;
+              pointer-events: none;
+              background: url('./assets/img/mainvisual.jpg') center center no-repeat;
+              background-size: cover;
+              transform: none;
+            "
+          ></div>
+          {/* h1タグは削除。画像内にタイトルが含まれています */}
+          {/* <p class="text-xl text-gray-600 max-w-2xl mx-auto">
             技術、ライフスタイル、そして日常の気づきを共有するブログです
-          </p>
+          </p> */}
         </section>
 
         <div class="grid lg:grid-cols-3 gap-8">
