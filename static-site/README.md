@@ -1,203 +1,145 @@
 # 静的ブログビルドシステム 仕様書
 
 ## 概要
-magnoliaブログサービスの静的サイト生成システムです。admin/の記事管理APIからデータを取得し、Deno Lumeを使用して静的HTMLを生成します。
+magnoliaブログサービスの静的サイト生成システムです。admin/の記事管理APIからデータを取得し、Denoで作成した自前のコードを使用して静的HTMLを生成します。
 
 ## システム構成
 
-### アーキテクチャ
+### 1. データフロー
 ```
-static/
-├── README.md           # このファイル
-├── deno.json          # Deno設定ファイル
-├── deno.lock          # 依存関係ロックファイル
-├── lume.config.ts     # Lume設定ファイル
-├── src/
-│   ├── _includes/     # レイアウトテンプレート
-│   ├── _data/         # データ処理スクリプト
-│   ├── pages/         # ページテンプレート
-│   ├── components/    # JSX/TSXコンポーネント
-│   └── styles/        # CSS/SCSSファイル
-├── public/            # 静的アセット
-└── dist/              # ビルド出力先
+admin/articles (管理画面) 
+    ↓ (ページ生成ボタン)
+admin/api/build (ビルドAPI)
+    ↓ (記事データ取得)
+admin/api/articles (記事API)
+    ↓ (静的サイト生成)
+static-site/ (静的サイト)
+    ↓ (デプロイ)
+レンタルサーバー
 ```
 
-## 技術スタック
+### 2. 技術スタック
+- **静的サイト生成**: 自前のDenoスクリプト
+- **テンプレートエンジン**: JSX/TSX (DenoのJSXサポート)
+- **スタイリング**: Tailwind CSS
+- **デプロイ**: GitHub Actions + rsync
 
-### コア技術
-- **Deno Lume**: 静的サイト生成エンジン
-- **JSX/TSX**: テンプレートエンジン
-- **TypeScript**: 開発言語
-- **Tailwind CSS**: スタイリング（admin/と統一）
+## 詳細仕様
 
-### 主要依存関係
-- `lume`: 静的サイト生成
-- `jsx`: JSX/TSXサポート
-- `postcss`: CSS処理
-- `tailwindcss`: CSSフレームワーク
-
-## データフロー
-
-### 1. 記事データ取得
-- **ソース**: `admin/api/articles` エンドポイント
-- **形式**: JSON（API設計書に準拠）
-- **処理**: ビルド時にデータを取得し、Lumeのデータコンテキストに格納
-
-### 2. データ構造
+### 1. 記事データ構造
 ```typescript
 interface Article {
   id: string;
   slug: string;
   title: string;
-  pub_date: string;
+  pub_date: string; // ISO 8601形式
   category: string;
   tags: string[];
   body: string;
   created_at: string;
   updated_at: string;
 }
+```
 
-interface BuildData {
-  articles: Article[];
-  categories: string[];
-  tags: string[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-  };
+### 2. 静的サイト構造
+```
+static-site/
+├── dist/                    # ビルド出力先
+│   ├── index.html          # トップページ
+│   ├── articles/           # 記事ページ
+│   │   ├── [slug].html
+│   │   └── category/
+│   │       └── [category].html
+│   ├── tags/               # タグページ
+│   │   └── [tag].html
+│   ├── assets/             # 静的アセット
+│   │   ├── css/
+│   │   └── js/
+│   └── sitemap.xml         # サイトマップ
+├── src/
+│   ├── pages/              # ページテンプレート
+│   ├── components/         # 再利用可能コンポーネント
+│   ├── layouts/            # レイアウトテンプレート
+│   └── styles/             # スタイルシート
+├── build/                  # ビルドスクリプト
+│   ├── builder.ts          # メインビルダー
+│   ├── renderer.ts         # JSXレンダラー
+│   └── utils.ts            # ユーティリティ
+├── deno.json               # Deno設定
+└── build.ts                # エントリーポイント
+```
+
+### 3. ページ種類
+1. **トップページ** (`/`)
+   - 最新記事一覧（ページネーション対応）
+   - カテゴリ一覧
+   - 人気タグ一覧
+
+2. **記事詳細ページ** (`/articles/[slug]`)
+   - 記事本文
+   - メタデータ（カテゴリ、タグ、公開日）
+   - 関連記事
+   - 前後の記事ナビゲーション
+
+3. **カテゴリページ** (`/category/[category]`)
+   - カテゴリ別記事一覧
+   - ページネーション対応
+
+4. **タグページ** (`/tags/[tag]`)
+   - タグ別記事一覧
+   - ページネーション対応
+
+### 4. API仕様
+
+#### ビルドAPI (`/api/build`)
+```typescript
+// POST /api/build
+interface BuildRequest {
+  force?: boolean; // 強制再ビルド
+}
+
+interface BuildResponse {
+  success: boolean;
+  message: string;
+  buildTime?: number;
+  generatedPages?: number;
 }
 ```
 
-## ページ構成
+#### 記事取得API (`/api/articles`)
+- 既存のAPIを拡張して公開用エンドポイントを追加
+- 認証不要の公開API
+- 公開済み記事のみ取得
 
-### 1. トップページ (`/`)
-- 最新記事一覧（ページネーション対応）
-- カテゴリ・タグフィルタ
-- 検索機能
+### 5. ビルドプロセス
+1. **データ取得**: admin/api/articlesから全記事データを取得
+2. **JSXレンダリング**: 自前のJSXレンダラーでHTMLに変換
+3. **ページ生成**: 各ページテンプレートにデータを適用してHTML生成
+4. **アセット処理**: CSS、JS、画像の最適化とコピー
+5. **サイトマップ生成**: XMLサイトマップの自動生成
+6. **出力**: dist/ディレクトリに静的ファイルを出力
 
-### 2. 記事詳細ページ (`/articles/{slug}`)
-- 記事の完全な内容表示
-- メタデータ（タイトル、日付、カテゴリ、タグ）
-- 関連記事表示
+### 6. 自前ビルダーの構成
+- **builder.ts**: メインビルドロジック、データ取得、ページ生成の制御
+- **renderer.ts**: JSXコンポーネントをHTML文字列に変換
+- **utils.ts**: ファイル操作、パス解決、ユーティリティ関数
+- **build.ts**: エントリーポイント、CLI引数処理
 
-### 3. カテゴリページ (`/categories/{category}`)
-- 特定カテゴリの記事一覧
-- ページネーション対応
+### 7. デプロイワークフロー
+1. **ローカル開発**: `cd static-site && deno run --allow-net --allow-read --allow-write build.ts`でローカルビルド
+2. **手動デプロイ**: admin/articlesからビルドボタンで手動実行
+3. **自動デプロイ**: GitHub Actionsで定期実行または手動トリガー
+4. **サーバーアップロード**: rsyncでレンタルサーバーに同期
 
-### 4. タグページ (`/tags/{tag}`)
-- 特定タグの記事一覧
-- ページネーション対応
+## 要件
+- admin/api/articlesから記事データを取得する
+- 静的なhtmlを出力する
+- 可能なら、jsxなどコンポーネント志向でページを組み立てたい
+- admin/articlesからページ生成機能を呼び出したい
+- 最終的には、admin/articlesのページ生成ボタンを押したら、Github Actions上で静的ページが生成され、レンタルサーバーにrsync等でアップロードするワークフローにする
 
-### 5. アーカイブページ (`/archive`)
-- 月別・年別記事一覧
-- 時系列での記事表示
-
-## テンプレート設計
-
-### レイアウト構造
-```
-_includes/
-├── base.tsx           # 基本レイアウト
-├── head.tsx           # メタ情報
-├── header.tsx         # ヘッダー
-├── footer.tsx         # フッター
-├── navigation.tsx     # ナビゲーション
-└── pagination.tsx     # ページネーション
-```
-
-### コンポーネント
-```
-components/
-├── ArticleCard.tsx    # 記事カード
-├── ArticleList.tsx    # 記事一覧
-├── CategoryList.tsx   # カテゴリ一覧
-├── TagCloud.tsx       # タグクラウド
-├── SearchBox.tsx      # 検索ボックス
-└── RelatedArticles.tsx # 関連記事
-```
-
-## ビルドプロセス
-
-### 1. データ取得フェーズ
-- admin/APIから記事データを取得
-- カテゴリ・タグの集計処理
-- ページネーション情報の計算
-
-### 2. テンプレート処理フェーズ
-- JSX/TSXテンプレートのコンパイル
-- データとテンプレートの結合
-- コンポーネントのレンダリング
-
-### 3. アセット処理フェーズ
-- CSS/SCSSのコンパイル
-- 画像の最適化
-- 静的アセットのコピー
-
-### 4. 出力フェーズ
-- HTMLファイルの生成
-- サイトマップの生成
-- RSSフィードの生成
-
-## 設定ファイル
-
-### deno.json
-```json
-{
-  "imports": {
-    "lume": "https://deno.land/x/lume@v2.0.0/mod.ts",
-    "jsx": "https://deno.land/x/lume@v2.0.0/plugins/jsx.ts"
-  },
-  "tasks": {
-    "build": "deno run -A lume.ts",
-    "serve": "deno run -A lume.ts --serve",
-    "dev": "deno run -A lume.ts --dev"
-  }
-}
-```
-
-### lume.config.ts
-- JSX/TSXプラグインの設定
-- PostCSS/Tailwind CSSの設定
-- データ処理プラグインの設定
-- 出力ディレクトリの設定
-
-## 開発・ビルドコマンド
-
-### 開発環境
-```bash
-# 開発サーバー起動
-deno task dev
-
-# ローカルサーバー起動
-deno task serve
-```
-
-### 本番ビルド
-```bash
-# 静的ファイル生成
-deno task build
-```
-
-## SEO・パフォーマンス
-
-### SEO対策
-- メタタグの自動生成
-- 構造化データ（JSON-LD）の埋め込み
-- サイトマップの自動生成
-- RSSフィードの生成
-
-### パフォーマンス最適化
-- CSS/JSの最小化
-- 画像の最適化
-- プリロード・プリフェッチ
-- キャッシュ戦略
-
-## 今後の拡張予定
-
-- [ ] 検索機能の実装
-- [ ] コメントシステムの統合
-- [ ] ソーシャルメディア連携
-- [ ] アナリティクス統合
-- [ ] PWA対応
-- [ ] 多言語対応 
+## 実装優先度
+1. **Phase 1**: 自前の静的サイト生成システム
+2. **Phase 2**: 管理画面からのビルド機能
+3. **Phase 3**: GitHub Actions自動デプロイ
+4. **Phase 4**: 高度な機能（検索、RSS、OGP等）

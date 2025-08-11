@@ -1,48 +1,15 @@
 {
-  "name": "magnolia-static",
-  "version": "1.0.0",
-  "description": "Magnolia blog static site generator",
-  "imports": {
-    "lume": "https://deno.land/x/lume@v2.0.0/mod.ts",
-    "jsx": "https://deno.land/x/lume@v2.0.0/plugins/jsx.ts",
-    "postcss": "https://deno.land/x/lume@v2.0.0/plugins/postcss.ts",
-    "tailwindcss": "npm:tailwindcss@^3.4.0",
-    "autoprefixer": "npm:autoprefixer@^10.4.0",
-    "@tailwindcss/typography": "npm:@tailwindcss/typography@^0.5.10"
-  },
-  "tasks": {
-    "build": "deno run -A lume.ts",
-    "serve": "deno run -A lume.ts --serve",
-    "dev": "deno run -A lume.ts --dev",
-    "clean": "rm -rf dist/ _site/"
-  },
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
   "imports": {
-    "preact": "https://esm.sh/preact@10.22.0",
-    "preact/": "https://esm.sh/preact@10.22.0/",
-    "tailwindcss": "npm:tailwindcss@^3.4.0",
-    "autoprefixer": "npm:autoprefixer@^10.4.0",
-    "@tailwindcss/typography": "npm:@tailwindcss/typography@^0.5.10"
+    "preact": "https://esm.sh/preact@10.19.6",
+    "preact/": "https://esm.sh/preact@10.19.6/",
+    "preact-render-to-string": "https://esm.sh/preact-render-to-string@6.2.2"
   },
-  "lint": {
-    "rules": {
-      "tags": ["recommended"]
-    }
-  },
-  "fmt": {
-    "files": {
-      "include": ["src/", "lume.config.ts"]
-    },
-    "options": {
-      "useTabs": false,
-      "lineWidth": 80,
-      "indentWidth": 2,
-      "semiColons": true,
-      "singleQuote": true,
-      "proseWrap": "preserve"
-    }
+  "tasks": {
+    "build": "deno run --allow-net --allow-read --allow-write build.ts",
+    "dev": "deno run --allow-net --allow-read --allow-write --watch build.ts"
   }
 } 
