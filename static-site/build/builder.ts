@@ -1,4 +1,4 @@
-import { log, ensureDir, slugToFilename } from "./utils.ts";
+import { log, ensureDir, slugToFilename, copyFile } from "./utils.ts";
 import { renderToHtml } from "./renderer.ts";
 import { IndexPage } from "../src/pages/index.tsx";
 import { ArticlePage } from "../src/pages/articles/[slug].tsx";
@@ -30,8 +30,8 @@ async function fetchArticles(): Promise<Article[]> {
   try {
     log('記事データを取得中...');
     
-    // adminサーバーから記事データを取得
-    const response = await fetch('http://localhost:8000/api/articles');
+    // adminサーバーから記事データを取得（公開用エンドポイント）
+    const response = await fetch('http://localhost:8000/api/public/articles');
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -103,6 +103,25 @@ async function generateArticlePages(articles: Article[]): Promise<void> {
 }
 
 /**
+ * アセットファイルをコピー
+ */
+async function copyAssets(): Promise<void> {
+  try {
+    log('アセットファイルをコピー中...');
+    
+    await ensureDir('dist/assets/css');
+    
+    // CSSファイルをコピー
+    await copyFile('src/styles/styles.css', 'dist/assets/css/styles.css');
+    
+    log('アセットファイルコピー完了', 'success');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`アセットファイルコピーエラー: ${errorMessage}`, 'error');
+  }
+}
+
+/**
  * メインビルド処理
  */
 export async function build(): Promise<void> {
@@ -125,6 +144,9 @@ export async function build(): Promise<void> {
     // ページを生成
     await generateIndexPage(articles);
     await generateArticlePages(articles);
+    
+    // アセットファイルをコピー
+    await copyAssets();
     
     const buildTime = Date.now() - startTime;
     log(`ビルド完了: ${buildTime}ms`, 'success');
