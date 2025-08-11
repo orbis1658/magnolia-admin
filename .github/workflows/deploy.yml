@@ -8,7 +8,30 @@ on:
   workflow_dispatch: # 手動実行
 
 jobs:
+  deploy-admin:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Deno
+      uses: denoland/setup-deno@v1
+      with:
+        deno-version: v2.x
+        
+    - name: Deploy to Deno Deploy
+      uses: denoland/deployctl@v1
+      with:
+        project: "magnolia-admin"
+        entrypoint: "main.ts"
+        root: "."
+        
   build-and-deploy:
+    needs: deploy-admin
     runs-on: ubuntu-latest
     
     steps:
