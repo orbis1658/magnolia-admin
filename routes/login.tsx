@@ -9,9 +9,16 @@ interface Data {
 
 export const handler: Handlers<Data> = {
   async GET(req, ctx) {
-    // 管理者ユーザーを初期化
-    await initializeAdminUser();
-    return ctx.render({});
+    try {
+      // 管理者ユーザーを初期化
+      await initializeAdminUser();
+      return ctx.render({});
+    } catch (error) {
+      console.error("ログインページGETエラー:", error);
+      return ctx.render({ 
+        error: `ログインページの読み込みに失敗しました: ${error instanceof Error ? error.message : String(error)}` 
+      });
+    }
   },
 
   async POST(req, ctx) {
@@ -66,6 +73,12 @@ export default function LoginPage({ data }: PageProps<Data>) {
             magnolia記事管理システム
           </p>
         </div>
+        
+        {data?.error && (
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <strong>エラー:</strong> {data.error}
+          </div>
+        )}
         
         <form class="mt-8 space-y-6" method="POST">
           {data?.error && (

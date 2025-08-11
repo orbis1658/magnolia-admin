@@ -8,14 +8,20 @@ export async function getKv() {
     // 環境変数からデータベースIDを取得
     const databaseId = Deno.env.get("KV_DATABASE_ID");
     
+    console.log("KV接続開始 - データベースID:", databaseId ? "設定済み" : "未設定");
+    
     if (databaseId) {
       // リモートKVに接続
       console.log("リモートKVに接続中...");
-      return await Deno.openKv(`https://api.deno.com/databases/${databaseId}/connect`);
+      const kv = await Deno.openKv(`https://api.deno.com/databases/${databaseId}/connect`);
+      console.log("リモートKV接続成功");
+      return kv;
     } else {
       // ローカルKVに接続（フォールバック）
       console.log("ローカルKVに接続中...");
-      return await Deno.openKv();
+      const kv = await Deno.openKv();
+      console.log("ローカルKV接続成功");
+      return kv;
     }
   } catch (error) {
     console.error("KV接続エラー:", error);
