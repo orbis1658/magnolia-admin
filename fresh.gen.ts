@@ -8,6 +8,7 @@ import * as $api_test from "./routes/api-test.tsx";
 import * as $api_articles_id_ from "./routes/api/articles/[id].ts";
 import * as $api_articles_index from "./routes/api/articles/index.ts";
 import * as $api_build from "./routes/api/build.ts";
+import * as $api_public_articles from "./routes/api/public/articles.ts";
 import * as $articles_id_edit from "./routes/articles/[id]/edit.tsx";
 import * as $articles_index from "./routes/articles/index.tsx";
 import * as $articles_new from "./routes/articles/new.tsx";
@@ -25,6 +26,7 @@ const manifest = {
     "./routes/api/articles/[id].ts": $api_articles_id_,
     "./routes/api/articles/index.ts": $api_articles_index,
     "./routes/api/build.ts": $api_build,
+    "./routes/api/public/articles.ts": $api_public_articles,
     "./routes/articles/[id]/edit.tsx": $articles_id_edit,
     "./routes/articles/index.tsx": $articles_index,
     "./routes/articles/new.tsx": $articles_new,

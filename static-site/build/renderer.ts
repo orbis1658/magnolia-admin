@@ -1,5 +1,5 @@
-import { renderToString } from "preact-render-to-string";
-import { h } from "preact";
+import { renderToString } from "https://esm.sh/preact-render-to-string@6.2.2";
+import { h } from "https://esm.sh/preact@10.19.6";
 
 /**
  * JSXコンポーネントをHTML文字列に変換

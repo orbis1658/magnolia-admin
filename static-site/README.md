@@ -135,9 +135,9 @@ interface BuildResponse {
 
 ### 8. デプロイワークフロー
 1. **ローカル開発**: `cd static-site && deno run --allow-net --allow-read --allow-write build.ts`でローカルビルド
-2. **手動デプロイ**: admin/articlesからビルドボタンで手動実行（Phase 2で実装予定）
-3. **自動デプロイ**: GitHub Actionsで定期実行または手動トリガー（Phase 3で実装予定）
-4. **サーバーアップロード**: rsyncでレンタルサーバーに同期（Phase 3で実装予定）
+2. **手動デプロイ**: admin/articlesからビルドボタンで手動実行 ✅
+3. **自動デプロイ**: GitHub Actionsでmainブランチへのプッシュ時に自動実行 ✅
+4. **サーバーアップロード**: rsyncでレンタルサーバーに同期 ✅
 
 ## 要件
 - admin/api/articlesから記事データを取得する
@@ -156,8 +156,8 @@ interface BuildResponse {
    - ✅ Step 1: ビルドAPIの作成
    - ✅ Step 2: 管理画面UIの拡張
    - ✅ Step 3: ビルド状況の表示機能
-3. **Phase 3**: GitHub Actions自動デプロイ 🔄
-   - ⏳ Step 1: GitHub Actionsワークフロー作成
-   - ⏳ Step 2: ビルドとデプロイの自動化
-   - ⏳ Step 3: サーバー設定
+3. **Phase 3**: GitHub Actions自動デプロイ ✅
+   - ✅ Step 1: GitHub Actionsワークフロー作成
+   - ✅ Step 2: ビルドとデプロイの自動化
+   - ✅ Step 3: サーバー設定（基盤完成）
 4. **Phase 4**: 高度な機能（検索、RSS、OGP等）

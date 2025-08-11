@@ -31,7 +31,8 @@ async function fetchArticles(): Promise<Article[]> {
     log('記事データを取得中...');
     
     // adminサーバーから記事データを取得（公開用エンドポイント）
-    const response = await fetch('http://localhost:8000/api/public/articles');
+    const apiUrl = Deno.env.get('API_URL') || 'http://localhost:8000';
+    const response = await fetch(`${apiUrl}/api/public/articles`);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
