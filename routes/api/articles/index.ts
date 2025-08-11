@@ -33,10 +33,12 @@ export const handler: Handlers = {
       });
     } catch (error) {
       console.error("記事取得エラー:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("エラー詳細:", errorMessage);
       return new Response(
         JSON.stringify({ 
           error: "記事の取得に失敗しました",
-          details: error instanceof Error ? error.message : String(error)
+          details: errorMessage
         }),
         {
           status: 500,

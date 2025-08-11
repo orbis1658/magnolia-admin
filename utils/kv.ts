@@ -89,40 +89,52 @@ export async function getArticles(
   category?: string,
   tag?: string
 ): Promise<{ articles: Article[]; total: number }> {
-  const kv = await getKv();
-  const articles: Article[] = [];
-  
-  let prefix: (string | number)[];
-  
-  if (category) {
-    prefix = ["articles_by_category", category];
-  } else if (tag) {
-    prefix = ["articles_by_tag", tag];
-  } else {
-    prefix = ["articles"];
-  }
-  
-  const offset = (page - 1) * limit;
-  
-  // 記事を取得
-  const entries = kv.list<Article>({ prefix }, { limit: limit + offset });
-  
-  let count = 0;
-  for await (const entry of entries) {
-    count++;
-    if (count > offset) {
-      articles.push(entry.value);
+  try {
+    console.log("getArticles開始:", { page, limit, category, tag });
+    const kv = await getKv();
+    const articles: Article[] = [];
+    
+    let prefix: (string | number)[];
+    
+    if (category) {
+      prefix = ["articles_by_category", category];
+    } else if (tag) {
+      prefix = ["articles_by_tag", tag];
+    } else {
+      prefix = ["articles"];
     }
+    
+    console.log("使用するプレフィックス:", prefix);
+    const offset = (page - 1) * limit;
+    
+    // 記事を取得
+    const entries = kv.list<Article>({ prefix }, { limit: limit + offset });
+    
+    let count = 0;
+    for await (const entry of entries) {
+      count++;
+      if (count > offset) {
+        articles.push(entry.value);
+      }
+    }
+    
+    console.log(`取得した記事数: ${articles.length}`);
+    
+    // 総数を取得
+    const totalEntries = kv.list({ prefix });
+    let total = 0;
+    for await (const _ of totalEntries) {
+      total++;
+    }
+    
+    console.log(`総記事数: ${total}`);
+    
+    return { articles, total };
+  } catch (error) {
+    console.error("getArticlesエラー:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`記事一覧の取得に失敗しました: ${errorMessage}`);
   }
-  
-  // 総数を取得
-  const totalEntries = kv.list({ prefix });
-  let total = 0;
-  for await (const _ of totalEntries) {
-    total++;
-  }
-  
-  return { articles, total };
 }
 
 // 記事の更新

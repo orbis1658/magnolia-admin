@@ -38,7 +38,9 @@ export const handler: Handlers<Data> = {
       );
       
       if (!response.ok) {
-        throw new Error("記事の取得に失敗しました");
+        const errorText = await response.text();
+        console.error("APIレスポンスエラー:", response.status, errorText);
+        throw new Error(`記事の取得に失敗しました (${response.status}): ${errorText}`);
       }
       
       const data = await response.json();
@@ -63,12 +65,13 @@ export const handler: Handlers<Data> = {
       });
     } catch (error) {
       console.error("記事一覧取得エラー:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return ctx.render({
         articles: [],
         total: 0,
         page: 1,
         limit: 10,
-        error: "記事の取得に失敗しました",
+        error: `記事の取得に失敗しました: ${errorMessage}`,
         success: undefined,
       });
     }
