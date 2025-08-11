@@ -16,19 +16,19 @@ export function BaseLayout({ title, description, keywords, children }: BaseLayou
         <title>{title}</title>
         {description && <meta name="description" content={description} />}
         {keywords && <meta name="keywords" content={keywords} />}
-        <link rel="stylesheet" href="/assets/css/styles.css" />
+        <link rel="stylesheet" href="/magnolia/assets/css/styles.css" />
       </head>
       <body>
         <header class="bg-white shadow-sm border-b">
           <div class="container mx-auto px-4 py-4">
             <nav class="flex items-center justify-between">
-              <a href="/" class="text-2xl font-bold text-gray-900 hover:text-blue-600">
+              <a href="/magnolia/" class="text-2xl font-bold text-gray-900 hover:text-blue-600">
                 Magnolia Blog
               </a>
               <div class="hidden md:flex space-x-6">
-                <a href="/" class="text-gray-600 hover:text-blue-600">ホーム</a>
-                <a href="/category" class="text-gray-600 hover:text-blue-600">カテゴリ</a>
-                <a href="/tags" class="text-gray-600 hover:text-blue-600">タグ</a>
+                <a href="/magnolia/" class="text-gray-600 hover:text-blue-600">ホーム</a>
+                <a href="/magnolia/category" class="text-gray-600 hover:text-blue-600">カテゴリ</a>
+                <a href="/magnolia/tags" class="text-gray-600 hover:text-blue-600">タグ</a>
               </div>
             </nav>
           </div>
