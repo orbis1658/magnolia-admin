@@ -152,9 +152,12 @@ interface BuildResponse {
    - ✅ Step 2: 基本的なページテンプレート作成
    - ✅ Step 3: 記事データ取得機能の実装
    - ✅ Step 4: 基本的なビルド機能のテスト
-2. **Phase 2**: 管理画面からのビルド機能 🔄
-   - ⏳ Step 1: ビルドAPIの作成
-   - ⏳ Step 2: 管理画面UIの拡張
-   - ⏳ Step 3: ビルド状況の表示機能
-3. **Phase 3**: GitHub Actions自動デプロイ
+2. **Phase 2**: 管理画面からのビルド機能 ✅
+   - ✅ Step 1: ビルドAPIの作成
+   - ✅ Step 2: 管理画面UIの拡張
+   - ✅ Step 3: ビルド状況の表示機能
+3. **Phase 3**: GitHub Actions自動デプロイ 🔄
+   - ⏳ Step 1: GitHub Actionsワークフロー作成
+   - ⏳ Step 2: ビルドとデプロイの自動化
+   - ⏳ Step 3: サーバー設定
 4. **Phase 4**: 高度な機能（検索、RSS、OGP等）

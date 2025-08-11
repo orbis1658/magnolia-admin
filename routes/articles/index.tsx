@@ -214,6 +214,27 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
       <script dangerouslySetInnerHTML={{
         __html: `
           document.addEventListener('DOMContentLoaded', function() {
+            // ビルド状況を取得
+            async function loadBuildStatus() {
+              try {
+                const response = await fetch('/api/build', {
+                  method: 'GET'
+                });
+                
+                if (response.ok) {
+                  const result = await response.json();
+                  if (result.success && result.generatedPages > 0) {
+                    const buildBtn = document.getElementById('buildBtn');
+                    buildBtn.textContent = \`静的サイトをビルド (\${result.generatedPages}ページ)\`;
+                  }
+                }
+              } catch (error) {
+                console.log('ビルド状況の取得に失敗:', error);
+              }
+            }
+            
+            // ページ読み込み時にビルド状況を取得
+            loadBuildStatus();
             // 記事削除ボタン
             document.querySelectorAll('.delete-article').forEach(function(button) {
               button.addEventListener('click', async function() {
@@ -254,19 +275,25 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
               try {
                 const response = await fetch('/api/build', {
                   method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({})
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                  alert('静的サイトのビルドが完了しました！');
+                  const message = \`静的サイトのビルドが完了しました！\\n\\n生成ページ数: \${result.generatedPages || 0}件\\nビルド時間: \${result.buildTime ? Math.round(result.buildTime / 1000) : 0}秒\`;
+                  alert(message);
                   button.className = 'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center';
                 } else {
-                  alert('ビルドに失敗しました: ' + result.error);
+                  const errorMessage = result.error || result.message || '不明なエラー';
+                  alert('ビルドに失敗しました:\\n' + errorMessage);
                   button.className = 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-center';
                 }
               } catch (error) {
-                alert('ビルドプロセスの実行に失敗しました: ' + error);
+                alert('ビルドプロセスの実行に失敗しました:\\n' + error);
                 button.className = 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-center';
               } finally {
                 button.disabled = false;
