@@ -125,7 +125,13 @@ interface BuildResponse {
 - **utils.ts**: ファイル操作、パス解決、ユーティリティ関数
 - **build.ts**: エントリーポイント、CLI引数処理
 
-### 7. デプロイワークフロー
+### 7. ページテンプレート構成
+- **src/layouts/base.tsx**: 基本レイアウトテンプレート
+- **src/components/ArticleCard.tsx**: 記事カードコンポーネント
+- **src/pages/index.tsx**: トップページテンプレート
+- **src/pages/articles/[slug].tsx**: 記事詳細ページテンプレート
+
+### 8. デプロイワークフロー
 1. **ローカル開発**: `cd static-site && deno run --allow-net --allow-read --allow-write build.ts`でローカルビルド
 2. **手動デプロイ**: admin/articlesからビルドボタンで手動実行
 3. **自動デプロイ**: GitHub Actionsで定期実行または手動トリガー
@@ -140,6 +146,10 @@ interface BuildResponse {
 
 ## 実装優先度
 1. **Phase 1**: 自前の静的サイト生成システム
+   - ✅ Step 1: 自前ビルダーの基盤作成
+   - ✅ Step 2: 基本的なページテンプレート作成
+   - 🔄 Step 3: 記事データ取得機能の実装
+   - ⏳ Step 4: 基本的なビルド機能のテスト
 2. **Phase 2**: 管理画面からのビルド機能
 3. **Phase 3**: GitHub Actions自動デプロイ
 4. **Phase 4**: 高度な機能（検索、RSS、OGP等）
