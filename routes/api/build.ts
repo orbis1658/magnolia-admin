@@ -5,7 +5,7 @@ export const handler: Handlers = {
     try {
       // ビルドプロセスを実行
       const buildCommand = new Deno.Command('deno', {
-        args: ['run', '-A', 'lume.ts'],
+        args: ['run', '-A', 'lume.config.ts'],
         cwd: './static-site',
         stdout: 'piped',
         stderr: 'piped',

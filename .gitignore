@@ -10,11 +10,6 @@ _fresh/
 # npm dependencies
 node_modules/
 
-# Static site build output
-static-site/dist/
-static-site/_site/
-static-site/.lume/
-
 # Deno KV local database
 .kv/
 

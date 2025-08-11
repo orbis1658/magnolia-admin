@@ -3,13 +3,11 @@
 ## 概要
 magnoliaブログサービスの静的サイト生成システムです。admin/の記事管理APIからデータを取得し、Deno Lumeを使用して静的HTMLを生成します。
 
-**注意**: このディレクトリは`static-site/`にリネームされました。admin/の`static/`フォルダとの競合を避けるためです。
-
 ## システム構成
 
 ### アーキテクチャ
 ```
-static-site/
+static/
 ├── README.md           # このファイル
 ├── deno.json          # Deno設定ファイル
 ├── deno.lock          # 依存関係ロックファイル

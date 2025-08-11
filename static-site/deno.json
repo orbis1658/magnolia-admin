@@ -20,6 +20,10 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
+  "imports": {
+    "preact": "https://esm.sh/preact@10.22.0",
+    "preact/": "https://esm.sh/preact@10.22.0/"
+  },
   "lint": {
     "rules": {
       "tags": ["recommended"]
