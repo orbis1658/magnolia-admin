@@ -19,7 +19,9 @@ export async function getKv() {
     }
   } catch (error) {
     console.error("KV接続エラー:", error);
-    throw error;
+    // 本番環境ではエラーを再スロー
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`KV接続に失敗しました: ${errorMessage}`);
   }
 }
 
