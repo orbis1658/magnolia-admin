@@ -105,6 +105,43 @@ async function generateArticlePages(articles: Article[]): Promise<void> {
 }
 
 /**
+ * 古い記事ファイルをクリーンアップ
+ */
+async function cleanupOldArticleFiles(articles: Article[]): Promise<void> {
+  try {
+    log('古い記事ファイルをクリーンアップ中...');
+    
+    const articlesDir = 'dist/articles';
+    
+    // 現在の記事のスラッグリストを作成
+    const currentSlugs = new Set(articles.map(article => article.slug));
+    
+    // 既存の記事ファイルをチェック
+    try {
+      for await (const entry of Deno.readDir(articlesDir)) {
+        if (entry.isFile && entry.name.endsWith('.html')) {
+          const slug = entry.name.replace('.html', '');
+          
+          // 現在の記事リストに存在しない場合は削除
+          if (!currentSlugs.has(slug)) {
+            const filepath = `${articlesDir}/${entry.name}`;
+            await Deno.remove(filepath);
+            log(`古い記事ファイルを削除: ${entry.name}`, 'info');
+          }
+        }
+      }
+    } catch {
+      // ディレクトリが存在しない場合は何もしない
+    }
+    
+    log('古い記事ファイルのクリーンアップ完了', 'success');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`古い記事ファイルクリーンアップエラー: ${errorMessage}`, 'error');
+  }
+}
+
+/**
  * アセットファイルをコピー
  */
 async function copyAssets(): Promise<void> {
@@ -146,6 +183,9 @@ export async function build(): Promise<void> {
     // ページを生成
     await generateIndexPage(articles);
     await generateArticlePages(articles);
+    
+    // 古い記事ファイルをクリーンアップ
+    await cleanupOldArticleFiles(articles);
     
     // アセットファイルをコピー
     await copyAssets();

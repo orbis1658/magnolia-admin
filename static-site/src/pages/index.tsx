@@ -60,7 +60,7 @@ export function IndexPage({ articles }: IndexPageProps) {
             {articles.length > 5 && (
               <div class="mt-8 text-center">
                 <a 
-                  href="/articles" 
+                  href="/magnolia/articles" 
                   class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   すべての記事を見る
@@ -77,7 +77,7 @@ export function IndexPage({ articles }: IndexPageProps) {
               <div class="space-y-2">
                 {Object.entries(categoryCounts).map(([category, count]) => (
                   <a 
-                    href={`/category/${category}.html`}
+                    href={`/magnolia/category/${category}.html`}
                     class="flex justify-between items-center text-gray-600 hover:text-blue-600 transition-colors"
                   >
                     <span>{category}</span>
@@ -93,7 +93,7 @@ export function IndexPage({ articles }: IndexPageProps) {
               <div class="flex flex-wrap gap-2">
                 {popularTags.map(([tag, count]) => (
                   <a 
-                    href={`/tags/${tag}.html`}
+                    href={`/magnolia/tags/${tag}.html`}
                     class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm hover:bg-blue-200 transition-colors"
                   >
                     #{tag} ({count})

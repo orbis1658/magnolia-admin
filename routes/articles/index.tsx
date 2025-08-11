@@ -251,7 +251,14 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
                   });
 
                   if (response.ok) {
-                    alert('記事が削除されました');
+                    const result = await response.json();
+                    
+                    if (result.workflowTriggered) {
+                      alert('記事が削除されました！\\n\\n✅ データベースから削除完了\\n✅ 静的ファイルから削除完了\\n✅ GitHub Actionsでレンタルサーバーからも削除中\\n\\nGitHubのActionsタブで進捗を確認できます。');
+                    } else {
+                      alert('記事が削除されました！\\n\\n✅ データベースから削除完了\\n✅ 静的ファイルから削除完了\\n⚠️ レンタルサーバーの更新に失敗\\n\\nエラー: ' + (result.workflowError || '不明'));
+                    }
+                    
                     window.location.reload();
                   } else {
                     const error = await response.json();
