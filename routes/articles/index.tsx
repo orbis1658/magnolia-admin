@@ -77,7 +77,7 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
             id="buildBtn"
             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center"
           >
-            静的サイトをビルド
+            ページを公開
           </button>
           <a
             href="/articles/new"
@@ -223,10 +223,7 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
                 
                 if (response.ok) {
                   const result = await response.json();
-                  if (result.success && result.generatedPages > 0) {
-                    const buildBtn = document.getElementById('buildBtn');
-                    buildBtn.textContent = \`静的サイトをビルド (\${result.generatedPages}ページ)\`;
-                  }
+                  // ページ数を表示する機能を削除
                 }
               } catch (error) {
                 console.log('ビルド状況の取得に失敗:', error);
@@ -276,10 +273,10 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
               const originalText = button.textContent;
               
               // GitHub Actionsをトリガーするかどうか確認
-              const useGitHubActions = confirm('GitHub Actionsを使用して静的サイトをビルド・デプロイしますか？\\n\\n「OK」: GitHub Actionsでビルド・FTPアップロード\\n「キャンセル」: ローカルでビルドのみ');
+              const useGitHubActions = confirm('ページを公開しますか？\\n\\n「OK」: レンタルサーバーに公開\\n「キャンセル」: ローカルでビルドのみ');
               
               button.disabled = true;
-              button.textContent = useGitHubActions ? 'GitHub Actions実行中...' : 'ビルド中...';
+              button.textContent = useGitHubActions ? '公開中...' : 'ビルド中...';
               button.className = 'bg-yellow-500 text-white font-bold py-2 px-4 rounded text-center cursor-not-allowed';
 
               try {
@@ -297,22 +294,22 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
 
                 if (result.success) {
                   if (useGitHubActions) {
-                    const message = \`GitHub Actionsワークフローが正常にトリガーされました！\\n\\nワークフロー実行ID: \${result.workflowRunId || '不明'}\\n\\nGitHubのActionsタブで進捗を確認できます。\\n完了まで数分かかる場合があります。\`;
+                    const message = \`ページの公開が開始されました！\\n\\nレンタルサーバーにアップロード中です。\\n完了まで数分かかる場合があります。\`;
                     alert(message);
                     button.className = 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center';
-                    button.textContent = 'GitHub Actions実行済み';
+                    button.textContent = '公開済み';
                   } else {
-                    const message = \`静的サイトのビルドが完了しました！\\n\\n生成ページ数: \${result.generatedPages || 0}件\\nビルド時間: \${result.buildTime ? Math.round(result.buildTime / 1000) : 0}秒\`;
+                    const message = \`ページのビルドが完了しました！\\n\\nビルド時間: \${result.buildTime ? Math.round(result.buildTime / 1000) : 0}秒\`;
                     alert(message);
                     button.className = 'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center';
                   }
                 } else {
                   const errorMessage = result.error || result.message || '不明なエラー';
-                  alert('ビルドに失敗しました:\\n' + errorMessage);
+                  alert('ページの公開に失敗しました:\\n' + errorMessage);
                   button.className = 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-center';
                 }
               } catch (error) {
-                alert('ビルドプロセスの実行に失敗しました:\\n' + error);
+                alert('ページの公開プロセスに失敗しました:\\n' + error);
                 button.className = 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-center';
               } finally {
                 if (!useGitHubActions) {
