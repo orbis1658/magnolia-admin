@@ -1,12 +1,12 @@
 import { Handlers } from '$fresh/server.ts';
 
-export const handlers: Handlers = {
+export const handler: Handlers = {
   async POST(req) {
     try {
       // ビルドプロセスを実行
       const buildCommand = new Deno.Command('deno', {
         args: ['run', '-A', 'lume.ts'],
-        cwd: './static',
+        cwd: './static-site',
         stdout: 'piped',
         stderr: 'piped',
       });
