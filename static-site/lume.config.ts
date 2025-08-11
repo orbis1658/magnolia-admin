@@ -1,5 +1,8 @@
 import lume from "https://deno.land/x/lume@v2.0.0/mod.ts";
 import nunjucks from "https://deno.land/x/lume@v2.0.0/plugins/nunjucks.ts";
+import postcss from "https://deno.land/x/lume@v2.0.0/plugins/postcss.ts";
+import tailwindcss from "npm:tailwindcss@^3.4.0";
+import autoprefixer from "npm:autoprefixer@^10.4.0";
 
 // データ取得プラグイン
 const fetchArticles = () => {
@@ -45,6 +48,9 @@ const site = lume({
 
 // プラグインの追加
 site.use(nunjucks());
+site.use(postcss({
+  plugins: [tailwindcss, autoprefixer],
+}));
 site.use(fetchArticles());
 
 // 静的ファイルのコピー

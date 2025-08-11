@@ -22,7 +22,10 @@
   },
   "imports": {
     "preact": "https://esm.sh/preact@10.22.0",
-    "preact/": "https://esm.sh/preact@10.22.0/"
+    "preact/": "https://esm.sh/preact@10.22.0/",
+    "tailwindcss": "npm:tailwindcss@^3.4.0",
+    "autoprefixer": "npm:autoprefixer@^10.4.0",
+    "@tailwindcss/typography": "npm:@tailwindcss/typography@^0.5.10"
   },
   "lint": {
     "rules": {
