@@ -6,29 +6,29 @@
 
 GitHubリポジトリのSettings > Secrets and variables > Actionsで以下のシークレットを設定してください：
 
-#### 必須シークレット
-- `SERVER_HOST`: レンタルサーバーのホスト名（例: `example.com`）
-- `SERVER_USER`: SSH接続用のユーザー名（例: `username`）
-- `SERVER_PATH`: デプロイ先のディレクトリパス（例: `/home/username/public_html`）
+#### 必須シークレット（FTP用）
+- `FTP_HOST`: FTPサーバーのホスト名（例: `example.com`）
+- `FTP_USER`: FTP接続用のユーザー名（例: `username`）
+- `FTP_PASS`: FTP接続用のパスワード
 
 #### オプションシークレット
+- `FTP_PATH`: デプロイ先のディレクトリパス（デフォルト: `/`）
 - `API_URL`: 記事データ取得用APIのURL（デフォルト: `http://localhost:8000`）
 
-### SSH鍵の設定
+### FTP設定
 
-1. SSH鍵ペアを生成（まだの場合）：
-   ```bash
-   ssh-keygen -t rsa -b 4096 -C "your-email@example.com"
-   ```
+さくらのレンタルサーバーではFTP/SFTPを使用してデプロイします。
 
-2. 公開鍵をサーバーに配置：
-   ```bash
-   ssh-copy-id username@example.com
-   ```
+1. FTP接続情報を確認：
+   - FTPサーバーアドレス
+   - FTPユーザー名
+   - FTPパスワード
+   - デプロイ先ディレクトリ
 
-3. GitHub ActionsでSSH鍵を使用するため、以下のシークレットも追加：
-   - `SSH_PRIVATE_KEY`: 秘密鍵の内容
-   - `SSH_KNOWN_HOSTS`: サーバーのknown_hosts
+2. さくらのレンタルサーバーの管理画面で：
+   - FTPアカウントの確認
+   - パスワードの確認
+   - 接続可能なディレクトリの確認
 
 ### デプロイの流れ
 

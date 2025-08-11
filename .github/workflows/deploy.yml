@@ -45,16 +45,17 @@ jobs:
         path: admin/static-site/dist/
         retention-days: 1
         
-    - name: Deploy to server
+    - name: Deploy to server (FTP)
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
         cd admin
-        chmod +x scripts/deploy.sh
-        ./scripts/deploy.sh
+        chmod +x scripts/deploy-ftp.sh
+        ./scripts/deploy-ftp.sh
       env:
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        SERVER_PATH: ${{ secrets.SERVER_PATH }}
+        FTP_HOST: ${{ secrets.FTP_HOST }}
+        FTP_USER: ${{ secrets.FTP_USER }}
+        FTP_PASS: ${{ secrets.FTP_PASS }}
+        FTP_PATH: ${{ secrets.FTP_PATH || '/' }}
         API_URL: ${{ secrets.API_URL || 'http://localhost:8000' }}
           
           
