@@ -22,12 +22,11 @@ jobs:
         
     - name: Install dependencies
       run: |
-        cd admin
         deno cache --reload main.ts
         
     - name: Build static site
       run: |
-        cd admin/static-site
+        cd static-site
         deno run --allow-net --allow-read --allow-write build.ts
       env:
         DENO_DIR: ${{ github.workspace }}/.deno_dir
@@ -36,19 +35,18 @@ jobs:
     - name: List generated files
       run: |
         echo "Generated files:"
-        find admin/static-site/dist -type f | sort
+        find static-site/dist -type f | sort
         
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: static-site-build
-        path: admin/static-site/dist/
+        path: static-site/dist/
         retention-days: 1
         
     - name: Deploy to server (FTP)
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
-        cd admin
         chmod +x scripts/deploy-ftp.sh
         ./scripts/deploy-ftp.sh
       env:
