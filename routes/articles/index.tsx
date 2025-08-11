@@ -73,6 +73,12 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h1 class="text-2xl sm:text-3xl font-bold">記事一覧</h1>
         <div class="flex gap-2">
+          <button
+            id="buildBtn"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center"
+          >
+            静的サイトをビルド
+          </button>
           <a
             href="/articles/new"
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center"
@@ -234,6 +240,38 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
                   alert('エラー: ' + error);
                 }
               });
+            });
+
+            // 静的サイトビルドボタン
+            document.getElementById('buildBtn').addEventListener('click', async function() {
+              const button = this;
+              const originalText = button.textContent;
+              
+              button.disabled = true;
+              button.textContent = 'ビルド中...';
+              button.className = 'bg-yellow-500 text-white font-bold py-2 px-4 rounded text-center cursor-not-allowed';
+
+              try {
+                const response = await fetch('/api/build', {
+                  method: 'POST',
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                  alert('静的サイトのビルドが完了しました！');
+                  button.className = 'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center';
+                } else {
+                  alert('ビルドに失敗しました: ' + result.error);
+                  button.className = 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-center';
+                }
+              } catch (error) {
+                alert('ビルドプロセスの実行に失敗しました: ' + error);
+                button.className = 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-center';
+              } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+              }
             });
           });
         `

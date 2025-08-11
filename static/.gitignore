@@ -1,22 +1,16 @@
-# dotenv environment variable files
+# Deno Lume build output
+dist/
+_site/
+
+# Deno cache
+.deno_dir/
+
+# Environment variables
 .env
+.env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env.local
-
-# Fresh build directory
-_fresh/
-# npm dependencies
-node_modules/
-
-# Static site build output
-static/dist/
-static/_site/
-static/.lume/
-
-# Deno KV local database
-.kv/
 
 # OS generated files
 .DS_Store
@@ -39,3 +33,13 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+
+# Node modules (if using any Node.js tools)
+node_modules/
+
+# Lume cache
+.lume/ 

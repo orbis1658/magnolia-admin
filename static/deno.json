@@ -1,0 +1,41 @@
+{
+  "name": "magnolia-static",
+  "version": "1.0.0",
+  "description": "Magnolia blog static site generator",
+  "imports": {
+    "lume": "https://deno.land/x/lume@v2.0.0/mod.ts",
+    "jsx": "https://deno.land/x/lume@v2.0.0/plugins/jsx.ts",
+    "postcss": "https://deno.land/x/lume@v2.0.0/plugins/postcss.ts",
+    "tailwindcss": "npm:tailwindcss@^3.4.0",
+    "autoprefixer": "npm:autoprefixer@^10.4.0",
+    "@tailwindcss/typography": "npm:@tailwindcss/typography@^0.5.10"
+  },
+  "tasks": {
+    "build": "deno run -A lume.ts",
+    "serve": "deno run -A lume.ts --serve",
+    "dev": "deno run -A lume.ts --dev",
+    "clean": "rm -rf dist/ _site/"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "fmt": {
+    "files": {
+      "include": ["src/", "lume.config.ts"]
+    },
+    "options": {
+      "useTabs": false,
+      "lineWidth": 80,
+      "indentWidth": 2,
+      "semiColons": true,
+      "singleQuote": true,
+      "proseWrap": "preserve"
+    }
+  }
+} 
