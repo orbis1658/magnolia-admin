@@ -1,89 +1,36 @@
-name: Deploy Static Site
-
+name: Deploy
 on:
   push:
-    branches: [ main ]
+    branches: main
   pull_request:
-    branches: [ main ]
-  workflow_dispatch: # 手動実行
+    branches: main
 
 jobs:
-  deploy-admin:
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
+
     permissions:
-      id-token: write
-      contents: read
-    
+      id-token: write # Needed for auth with Deno Deploy
+      contents: read # Needed to clone the repository
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Deno
-      uses: denoland/setup-deno@v1
-      with:
-        deno-version: v2.x
-        
-    - name: Deploy to Deno Deploy
-      uses: denoland/deployctl@v1
-      with:
-        project: "magnolia-admin"
-        entrypoint: "main.ts"
-        root: "."
-        
-  build-and-deploy:
-    needs: deploy-admin
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Deno
-      uses: denoland/setup-deno@v1
-      with:
-        deno-version: v2.x
-        
-    - name: Install lftp
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y lftp
-        
-    - name: Install dependencies
-      run: |
-        # lockfileを削除して再生成
-        rm -f static-site/deno.lock
-        deno cache --reload main.ts
-        
-    - name: Build static site
-      run: |
-        cd static-site
-        deno run --allow-net --allow-read --allow-write --allow-env build.ts
-      env:
-        DENO_DIR: ${{ github.workspace }}/.deno_dir
-        API_URL: ${{ secrets.API_URL || 'http://localhost:8000' }}
-        
-    - name: List generated files
-      run: |
-        echo "Generated files:"
-        find static-site/dist -type f | sort
-        
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: static-site-build
-        path: static-site/dist/
-        retention-days: 1
-        
-    - name: Deploy to server (FTP)
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: |
-        chmod +x scripts/deploy-ftp.sh
-        ./scripts/deploy-ftp.sh
-      env:
-        FTP_HOST: ${{ secrets.FTP_HOST }}
-        FTP_USER: ${{ secrets.FTP_USER }}
-        FTP_PASS: ${{ secrets.FTP_PASS }}
-        FTP_PATH: ${{ secrets.FTP_PATH || '/' }}
-        API_URL: ${{ secrets.API_URL || 'http://localhost:8000' }}
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Build step
+        run: "deno task build"
+
+      - name: Upload to Deno Deploy
+        uses: denoland/deployctl@v1
+        with:
+          project: "magnolia-admin"
+          entrypoint: "main.ts"
+          root: "."
           
           
