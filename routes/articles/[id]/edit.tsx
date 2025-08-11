@@ -1,6 +1,7 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { Article } from "../../../types/article.ts";
 import { requireAuth } from "../../../utils/auth-helper.ts";
+import { getArticle, updateArticle } from "../../../utils/kv.ts";
 
 interface Data {
   article?: Article;
@@ -17,20 +18,14 @@ export const handler: Handlers<Data> = {
     }
     try {
       const { id } = ctx.params;
-      const baseUrl = new URL(req.url).origin;
-      const cookie = req.headers.get("cookie") || "";
       
-      const response = await fetch(`${baseUrl}/api/articles/${id}`, {
-        headers: {
-          'Cookie': cookie,
-        },
-      });
+      // 直接KVから記事を取得
+      const article = await getArticle(id);
       
-      if (!response.ok) {
+      if (!article) {
         return ctx.render({ error: "記事が見つかりません" });
       }
       
-      const article = await response.json();
       return ctx.render({ article });
     } catch (error) {
       console.error("記事取得エラー:", error);
@@ -89,47 +84,20 @@ export const handler: Handlers<Data> = {
         pub_date: pub_date || new Date().toISOString().split('T')[0],
       };
 
-      const baseUrl = new URL(req.url).origin;
-      const cookie = req.headers.get("cookie") || "";
+      // 直接KVで記事を更新
+      await updateArticle(id, articleData);
       
-      const response = await fetch(`${baseUrl}/api/articles/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookie,
-        },
-        body: JSON.stringify(articleData),
-      });
-
-      if (response.ok) {
-        // 更新成功後、更新された記事データを取得して再表示
-        const updatedResponse = await fetch(`${baseUrl}/api/articles/${id}`, {
-          headers: {
-            'Cookie': cookie,
-          },
-        });
-        const updatedArticle = await updatedResponse.json();
+      // 更新された記事を取得
+      const updatedArticle = await getArticle(id);
+      
+      if (updatedArticle) {
         return ctx.render({ 
           article: updatedArticle, 
           success: "記事が更新されました" 
         });
       } else {
-        const error = await response.json();
-        // エラーの場合、フォームデータを保持して再表示
-        const article = {
-          id,
-          title,
-          slug,
-          body,
-          category: category || "未分類",
-          tags: tagArray,
-          pub_date: pub_date || new Date().toISOString().split('T')[0],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
         return ctx.render({ 
-          article, 
-          error: error.error || "記事の更新に失敗しました" 
+          error: "記事の更新に失敗しました" 
         });
       }
     } catch (error) {

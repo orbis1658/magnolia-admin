@@ -1,5 +1,7 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { requireAuth } from "../../utils/auth-helper.ts";
+import { saveArticle, generateId } from "../../utils/kv.ts";
+import { Article } from "../../types/article.ts";
 
 interface Data {
   error?: string;
@@ -74,48 +76,37 @@ export const handler: Handlers<Data> = {
         pub_date: pub_date || new Date().toISOString().split('T')[0],
       };
 
-      console.log("APIリクエスト送信:", articleData);
-      const baseUrl = new URL(req.url).origin;
-      const cookie = req.headers.get("cookie") || "";
+      console.log("記事作成開始:", articleData);
       
-      const response = await fetch(`${baseUrl}/api/articles`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': cookie,
-        },
-        body: JSON.stringify(articleData),
+      // 記事オブジェクトを作成
+      const now = new Date().toISOString();
+      const article: Article = {
+        id: generateId(),
+        slug: articleData.slug,
+        title: articleData.title,
+        pub_date: articleData.pub_date || now,
+        category: articleData.category || "未分類",
+        tags: articleData.tags || [],
+        body: articleData.body,
+        created_at: now,
+        updated_at: now,
+      };
+
+      console.log("記事オブジェクト作成:", article);
+      
+      // KVに保存
+      console.log("KV保存開始");
+      await saveArticle(article);
+      console.log("KV保存完了");
+
+      console.log("記事作成成功 - リダイレクト実行");
+      // 成功時は記事一覧ページにリダイレクト（成功メッセージ付き）
+      const headers = new Headers();
+      headers.set("Location", "/articles?success=created");
+      return new Response(null, {
+        status: 302,
+        headers,
       });
-
-      console.log("APIレスポンスステータス:", response.status);
-      console.log("APIレスポンスヘッダー:", Object.fromEntries(response.headers.entries()));
-
-      if (response.ok) {
-        console.log("記事作成成功 - リダイレクト実行");
-        // 成功時は記事一覧ページにリダイレクト（成功メッセージ付き）
-        const headers = new Headers();
-        headers.set("Location", "/articles?success=created");
-        return new Response(null, {
-          status: 302,
-          headers,
-        });
-      } else {
-        const errorData = await response.json();
-        console.error("APIエラー:", errorData);
-        // エラーの場合、フォームデータを保持して再表示
-        const formData = {
-          title,
-          slug,
-          body,
-          category: category || "未分類",
-          tags: tagArray,
-          pub_date: pub_date || new Date().toISOString().split('T')[0],
-        };
-        return ctx.render({ 
-          formData, 
-          error: errorData.error || "記事の作成に失敗しました" 
-        });
-      }
     } catch (error) {
       console.error("記事作成エラー:", error);
       return ctx.render({ error: "記事の作成に失敗しました" });

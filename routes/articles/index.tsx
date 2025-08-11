@@ -1,6 +1,7 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { Article } from "../../types/article.ts";
 import { requireAuth } from "../../utils/auth-helper.ts";
+import { getArticles } from "../../utils/kv.ts";
 
 interface Data {
   articles: Article[];
@@ -25,25 +26,9 @@ export const handler: Handlers<Data> = {
       const category = url.searchParams.get("category") || undefined;
       const tag = url.searchParams.get("tag") || undefined;
 
-      const baseUrl = new URL(req.url).origin;
-      const cookie = req.headers.get("cookie") || "";
+      // 直接KVから記事を取得
+      const result = await getArticles(page, limit, category, tag);
       
-      const response = await fetch(
-        `${baseUrl}/api/articles?page=${page}&limit=${limit}${category ? `&category=${category}` : ""}${tag ? `&tag=${tag}` : ""}`,
-        {
-          headers: {
-            "Cookie": cookie,
-          },
-        }
-      );
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("APIレスポンスエラー:", response.status, errorText);
-        throw new Error(`記事の取得に失敗しました (${response.status}): ${errorText}`);
-      }
-      
-      const data = await response.json();
       const successCode = url.searchParams.get("success");
       
       // 成功メッセージコードを適切なメッセージに変換
@@ -57,10 +42,10 @@ export const handler: Handlers<Data> = {
       }
       
       return ctx.render({
-        articles: data.articles || [],
-        total: data.total || 0,
-        page: data.page || 1,
-        limit: data.limit || 10,
+        articles: result.articles || [],
+        total: result.total || 0,
+        page: page,
+        limit: limit,
         success: successMessage,
       });
     } catch (error) {
