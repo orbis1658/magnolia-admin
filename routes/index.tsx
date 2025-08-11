@@ -1,4 +1,22 @@
-export default function Home() {
+import { Handlers } from "$fresh/server.ts";
+import { requireAuth } from "../utils/auth-helper.ts";
+
+interface Data {
+  user?: any;
+}
+
+export const handler: Handlers<Data> = {
+  async GET(req, ctx) {
+    // 認証チェック
+    const authResult = await requireAuth(req);
+    if (authResult instanceof Response) {
+      return authResult;
+    }
+    return ctx.render({ user: authResult.user });
+  },
+};
+
+export default function Home({ data }: { data: Data }) {
   return (
     <div class="min-h-screen bg-gray-50">
       {/* ヘッダー */}
@@ -65,24 +83,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 統計情報 */}
-          <div class="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 class="text-lg font-semibold mb-4">システム情報</h3>
-            <div class="grid md:grid-cols-3 gap-4 text-center">
-              <div>
-                <div class="text-2xl font-bold text-blue-600">Deno Fresh</div>
-                <div class="text-sm text-gray-600">フレームワーク</div>
-              </div>
-              <div>
-                <div class="text-2xl font-bold text-green-600">Deno KV</div>
-                <div class="text-sm text-gray-600">データベース</div>
-              </div>
-              <div>
-                <div class="text-2xl font-bold text-purple-600">Tailwind CSS</div>
-                <div class="text-sm text-gray-600">スタイリング</div>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
     </div>

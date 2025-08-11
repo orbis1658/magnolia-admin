@@ -20,9 +20,18 @@ import { cleanupExpiredSessions } from "./utils/auth.ts";
 // 環境変数の確認（デプロイ時のみ）
 if (Deno.env.get("DENO_DEPLOYMENT_ID")) {
   console.log("Deno Deploy環境で起動中...");
+  console.log("DENO_DEPLOYMENT_ID:", Deno.env.get("DENO_DEPLOYMENT_ID"));
   console.log("ADMIN_USERNAME:", Deno.env.get("ADMIN_USERNAME") ? "設定済み" : "未設定");
   console.log("ADMIN_PASSWORD:", Deno.env.get("ADMIN_PASSWORD") ? "設定済み" : "未設定");
   console.log("KV_DATABASE_ID:", Deno.env.get("KV_DATABASE_ID") ? "設定済み" : "未設定");
+  
+  // 環境変数が設定されていない場合の警告
+  if (!Deno.env.get("ADMIN_USERNAME") || !Deno.env.get("ADMIN_PASSWORD")) {
+    console.warn("⚠️  管理者認証情報の環境変数が設定されていません！");
+    console.warn("Deno Deployのダッシュボードで以下を設定してください：");
+    console.warn("- ADMIN_USERNAME");
+    console.warn("- ADMIN_PASSWORD");
+  }
 }
 
 // 定期的に期限切れセッションをクリーンアップ

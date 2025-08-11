@@ -16,20 +16,19 @@ export interface Session {
 }
 
 // 環境変数から管理者の認証情報を取得
-const ADMIN_USERNAME = Deno.env.get("ADMIN_USERNAME");
-const ADMIN_PASSWORD = Deno.env.get("ADMIN_PASSWORD");
+function getAdminCredentials() {
+  const ADMIN_USERNAME = Deno.env.get("ADMIN_USERNAME");
+  const ADMIN_PASSWORD = Deno.env.get("ADMIN_PASSWORD");
 
-// 環境変数が設定されていない場合のエラーハンドリング
-if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
-  console.error("環境変数が設定されていません:");
-  console.error("ADMIN_USERNAME:", ADMIN_USERNAME ? "設定済み" : "未設定");
-  console.error("ADMIN_PASSWORD:", ADMIN_PASSWORD ? "設定済み" : "未設定");
-  throw new Error("管理者認証情報の環境変数が設定されていません。ADMIN_USERNAME と ADMIN_PASSWORD を設定してください。");
+  if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+    console.error("環境変数が設定されていません:");
+    console.error("ADMIN_USERNAME:", ADMIN_USERNAME ? "設定済み" : "未設定");
+    console.error("ADMIN_PASSWORD:", ADMIN_PASSWORD ? "設定済み" : "未設定");
+    throw new Error("管理者認証情報の環境変数が設定されていません。ADMIN_USERNAME と ADMIN_PASSWORD を設定してください。");
+  }
+
+  return { username: ADMIN_USERNAME, password: ADMIN_PASSWORD };
 }
-
-// 型安全性のため、非nullアサーションを使用
-const ADMIN_USERNAME_SAFE = ADMIN_USERNAME!;
-const ADMIN_PASSWORD_SAFE = ADMIN_PASSWORD!;
 
 // セッションの有効期限（24時間）
 const SESSION_DURATION = 24 * 60 * 60 * 1000;
@@ -37,21 +36,22 @@ const SESSION_DURATION = 24 * 60 * 60 * 1000;
 // 管理者ユーザーを初期化
 export async function initializeAdminUser(): Promise<void> {
   try {
+    const credentials = getAdminCredentials();
     const kv = await getKv();
     
     // 管理者ユーザーが存在するかチェック
-    const existingUser = await kv.get<User>(["users", ADMIN_USERNAME_SAFE]);
+    const existingUser = await kv.get<User>(["users", credentials.username]);
     
     if (!existingUser.value) {
       // 管理者ユーザーを作成
       const user: User = {
         id: crypto.randomUUID(),
-        username: ADMIN_USERNAME_SAFE,
-        passwordHash: await hashPassword(ADMIN_PASSWORD_SAFE),
+        username: credentials.username,
+        passwordHash: await hashPassword(credentials.password),
         created_at: new Date().toISOString(),
       };
       
-      await kv.set(["users", ADMIN_USERNAME_SAFE], user);
+      await kv.set(["users", credentials.username], user);
       console.log("管理者ユーザーを作成しました");
     }
   } catch (error) {
