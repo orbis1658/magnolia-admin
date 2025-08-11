@@ -23,7 +23,7 @@ export function BaseLayout({ title, description, keywords, children }: BaseLayou
             <div class="container mx-auto px-4 py-4">
               <nav class="flex items-center justify-between">
                 <a href="/magnolia/" class="flex items-center">
-                  <img src="./assets/img/logo.jpg" alt="マグノリア" class="h-10 w-auto mr-2" />
+                  <img src="/magnolia/assets/img/logo.jpg" alt="マグノリア" class="h-10 w-auto mr-2" />
                 </a>
                 <div class="hidden md:flex space-x-6">
                   <a href="/magnolia/" class="text-gray-600 hover:text-blue-600">ホーム</a>
