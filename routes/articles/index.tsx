@@ -268,8 +268,11 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
               const button = this;
               const originalText = button.textContent;
               
+              // GitHub Actionsをトリガーするかどうか確認
+              const useGitHubActions = confirm('GitHub Actionsを使用して静的サイトをビルド・デプロイしますか？\\n\\n「OK」: GitHub Actionsでビルド・FTPアップロード\\n「キャンセル」: ローカルでビルドのみ');
+              
               button.disabled = true;
-              button.textContent = 'ビルド中...';
+              button.textContent = useGitHubActions ? 'GitHub Actions実行中...' : 'ビルド中...';
               button.className = 'bg-yellow-500 text-white font-bold py-2 px-4 rounded text-center cursor-not-allowed';
 
               try {
@@ -278,15 +281,24 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
                   headers: {
                     'Content-Type': 'application/json'
                   },
-                  body: JSON.stringify({})
+                  body: JSON.stringify({
+                    trigger_github_actions: useGitHubActions
+                  })
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                  const message = \`静的サイトのビルドが完了しました！\\n\\n生成ページ数: \${result.generatedPages || 0}件\\nビルド時間: \${result.buildTime ? Math.round(result.buildTime / 1000) : 0}秒\`;
-                  alert(message);
-                  button.className = 'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center';
+                  if (useGitHubActions) {
+                    const message = \`GitHub Actionsワークフローが正常にトリガーされました！\\n\\nワークフロー実行ID: \${result.workflowRunId || '不明'}\\n\\nGitHubのActionsタブで進捗を確認できます。\\n完了まで数分かかる場合があります。\`;
+                    alert(message);
+                    button.className = 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center';
+                    button.textContent = 'GitHub Actions実行済み';
+                  } else {
+                    const message = \`静的サイトのビルドが完了しました！\\n\\n生成ページ数: \${result.generatedPages || 0}件\\nビルド時間: \${result.buildTime ? Math.round(result.buildTime / 1000) : 0}秒\`;
+                    alert(message);
+                    button.className = 'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center';
+                  }
                 } else {
                   const errorMessage = result.error || result.message || '不明なエラー';
                   alert('ビルドに失敗しました:\\n' + errorMessage);
@@ -296,8 +308,10 @@ export default function ArticlesPage({ data }: PageProps<Data>) {
                 alert('ビルドプロセスの実行に失敗しました:\\n' + error);
                 button.className = 'bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-center';
               } finally {
-                button.disabled = false;
-                button.textContent = originalText;
+                if (!useGitHubActions) {
+                  button.disabled = false;
+                  button.textContent = originalText;
+                }
               }
             });
           });
