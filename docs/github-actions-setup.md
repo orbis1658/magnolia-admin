@@ -30,7 +30,7 @@
 - `PERSONAL_ACCESS_TOKEN`: 上記で作成したPersonal Access Token
 - `REPO_OWNER`: GitHubユーザー名または組織名
 - `REPO_NAME`: リポジトリ名
-- `ADMIN_API_URL`: 管理画面のURL（例：`https://your-admin-domain.com`）
+- `ADMIN_API_URL`: 管理画面のURL（例：`https://magnolia-admin.deno.dev`）
 
 #### FTP設定（さくらのレンタルサーバー）
 - `FTP_SERVER`: FTPサーバーのホスト名（例：`your-domain.com`）
@@ -46,7 +46,7 @@ Deno Deployの管理画面で以下の環境変数を設定：
 PERSONAL_ACCESS_TOKEN=your_github_personal_access_token_here
 REPO_OWNER=your_github_username
 REPO_NAME=your_repository_name
-ADMIN_API_URL=https://your-admin-domain.com
+ADMIN_API_URL=https://magnolia-admin.deno.dev
 ```
 
 ### 4. ワークフローファイルの確認

@@ -31,7 +31,7 @@ async function fetchArticles(): Promise<Article[]> {
     log('記事データを取得中...');
     
     // adminサーバーから記事データを取得（公開用エンドポイント）
-    const apiUrl = Deno.env.get('API_URL') || 'https://your-domain.com';
+    const apiUrl = Deno.env.get('API_URL') || 'https://magnolia-admin.deno.dev';
     console.log('API URL:', apiUrl);
     const response = await fetch(`${apiUrl}/api/public/articles`);
     

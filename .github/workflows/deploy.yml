@@ -59,7 +59,7 @@ jobs:
       - name: Build Static Site
         run: |
           cd static-site
-          deno run --allow-net --allow-read --allow-write build.ts
+          deno run --allow-net --allow-read --allow-write --allow-env build.ts
         env:
           API_URL: ${{ secrets.ADMIN_API_URL }}
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -77,6 +77,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./static-site/dist/
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          dangerous-clean-slate: true
           exclude: |
             **/.git*
             **/.git*/**
