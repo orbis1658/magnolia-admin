@@ -18,7 +18,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
     <article class="border rounded-lg p-6 hover:shadow-md transition-shadow">
       <h2 class="text-2xl font-semibold mb-2">
         <a 
-          href={`./articles/${article.slug}.html`} 
+          href={`/magnolia/articles/${article.slug}.html`} 
           class="text-blue-600 hover:text-blue-800 transition-colors"
         >
           {article.title}

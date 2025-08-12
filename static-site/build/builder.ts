@@ -2,6 +2,7 @@ import { log, ensureDir, slugToFilename, categoryToFilename, categoryToSlug, tag
 import { renderToHtml } from "./renderer.ts";
 import { IndexPage } from "../src/pages/index.tsx";
 import { ArticlePage } from "../src/pages/articles/[slug].tsx";
+import { ArticlesIndexPage } from "../src/pages/articles/index.tsx";
 import { CategoryPage } from "../src/pages/category/[category].tsx";
 import { CategoryIndexPage } from "../src/pages/category/index.tsx";
 import { TagPage } from "../src/pages/tags/[tag].tsx";
@@ -109,6 +110,80 @@ async function generateArticlePages(articles: Article[]): Promise<void> {
 }
 
 /**
+ * 記事一覧ページを生成
+ */
+async function generateArticlesIndexPage(articles: Article[]): Promise<void> {
+  try {
+    log('記事一覧ページを生成中...');
+    
+    // 記事を公開日降順でソート
+    const sortedArticles = articles
+      .sort((a, b) => new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime());
+    
+    // カテゴリ別記事数を集計
+    const categoryCounts = articles.reduce((acc, article) => {
+      if (article.category && article.category.trim() !== '') {
+        acc[article.category] = (acc[article.category] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+    
+    const categories = Object.entries(categoryCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+    
+    // 人気タグを集計
+    const tagCounts = articles.reduce((acc, article) => {
+      article.tags.forEach(tag => {
+        if (tag && tag.trim() !== '') {
+          acc[tag] = (acc[tag] || 0) + 1;
+        }
+      });
+      return acc;
+    }, {} as Record<string, number>);
+    
+    const popularTags = Object.entries(tagCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(sortedArticles.length / itemsPerPage);
+    
+    // 各ページを生成
+    for (let page = 1; page <= totalPages; page++) {
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const pageArticles = sortedArticles.slice(startIndex, endIndex);
+      
+      const hasNextPage = page < totalPages;
+      const hasPrevPage = page > 1;
+      
+      const html = renderToHtml(ArticlesIndexPage({
+        articles: pageArticles,
+        currentPage: page,
+        totalPages,
+        hasNextPage,
+        hasPrevPage,
+        categories,
+        popularTags
+      }));
+      
+      // ファイル名を生成（ページ1の場合はindex.html、それ以外はページ番号付き）
+      const filename = page === 1 ? 'index.html' : `page-${page}.html`;
+      const filepath = `dist/articles/${filename}`;
+      
+      await Deno.writeTextFile(filepath, html);
+    }
+    
+    log('記事一覧ページ生成完了', 'success');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`記事一覧ページ生成エラー: ${errorMessage}`, 'error');
+  }
+}
+
+/**
  * カテゴリページを生成
  */
 async function generateCategoryPages(articles: Article[]): Promise<void> {
@@ -120,9 +195,13 @@ async function generateCategoryPages(articles: Article[]): Promise<void> {
     // カテゴリ別に記事をグループ化
     const categoryGroups = new Map<string, Article[]>();
     
+    log('記事データの詳細:');
     for (const article of articles) {
+      log(`  - ${article.title}: カテゴリ="${article.category}"`);
+      
       // 空のカテゴリや無効なカテゴリをスキップ
       if (!article.category || article.category.trim() === '') {
+        log(`    → カテゴリが空のためスキップ`);
         continue;
       }
       
@@ -141,6 +220,8 @@ async function generateCategoryPages(articles: Article[]): Promise<void> {
     
     // 各カテゴリのページを生成
     for (const [category, categoryArticles] of categoryGroups) {
+      log(`カテゴリ "${category}" の処理中: ${categoryArticles.length}件の記事`);
+      
       const itemsPerPage = 10;
       const totalPages = Math.ceil(categoryArticles.length / itemsPerPage);
       
@@ -169,6 +250,7 @@ async function generateCategoryPages(articles: Article[]): Promise<void> {
         
         const filepath = `dist/category/${filename}`;
         await Deno.writeTextFile(filepath, html);
+        log(`カテゴリページ生成: ${filepath} (${pageArticles.length}件の記事)`);
       }
     }
     
@@ -370,6 +452,11 @@ async function cleanupOldArticleFiles(articles: Article[]): Promise<void> {
     try {
       for await (const entry of Deno.readDir(articlesDir)) {
         if (entry.isFile && entry.name.endsWith('.html')) {
+          // index.htmlとpage-*.htmlは除外（記事一覧ページ）
+          if (entry.name === 'index.html' || entry.name.startsWith('page-')) {
+            continue;
+          }
+          
           const slug = entry.name.replace('.html', '');
           
           // 現在の記事リストに存在しない場合は削除
@@ -531,6 +618,7 @@ export async function build(): Promise<void> {
     // ページを生成
     await generateIndexPage(articles);
     await generateArticlePages(articles);
+    await generateArticlesIndexPage(articles);
     await generateCategoryPages(articles);
     await generateCategoryIndexPage(articles);
     await generateTagPages(articles);

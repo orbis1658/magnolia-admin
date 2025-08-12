@@ -1,6 +1,7 @@
 import { h } from "preact";
 import { BaseLayout } from "../../layouts/base.tsx";
 import { Article } from "../../../build/builder.ts";
+import { categoryToSlug, tagToSlug } from "../../../build/utils.ts";
 
 interface ArticlePageProps {
   article: Article;
@@ -52,7 +53,7 @@ export function ArticlePage({ article, relatedArticles = [] }: ArticlePageProps)
               <div class="flex items-center">
                 <span class="mr-2">📂</span>
                 <a 
-                  href={`/magnolia/category/${article.category}.html`}
+                  href={`/magnolia/category/${categoryToSlug(article.category)}.html`}
                   class="hover:text-blue-600 transition-colors"
                 >
                   {article.category}
@@ -64,7 +65,7 @@ export function ArticlePage({ article, relatedArticles = [] }: ArticlePageProps)
               <div class="flex flex-wrap gap-2 mb-6">
                 {article.tags.map(tag => (
                   <a 
-                    href={`/magnolia/tags/${tag}.html`}
+                    href={`/magnolia/tags/${tagToSlug(tag)}.html`}
                     class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm hover:bg-blue-200 transition-colors"
                   >
                     #{tag}
@@ -121,14 +122,14 @@ export function ArticlePage({ article, relatedArticles = [] }: ArticlePageProps)
               
               <div class="flex space-x-4">
                 <a 
-                  href={`/magnolia/category/${article.category}.html`}
+                  href={`/magnolia/category/${categoryToSlug(article.category)}.html`}
                   class="text-gray-600 hover:text-blue-600"
                 >
                   カテゴリ: {article.category}
                 </a>
                 {article.tags.length > 0 && (
                   <a 
-                    href={`/magnolia/tags/${article.tags[0]}.html`}
+                    href={`/magnolia/tags/${tagToSlug(article.tags[0])}.html`}
                     class="text-gray-600 hover:text-blue-600"
                   >
                     タグ: {article.tags[0]}

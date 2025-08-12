@@ -83,54 +83,20 @@ export function slugToFilename(slug: string): string {
 
 /**
  * カテゴリ名をURLフレンドリーな文字列に変換
+ * 日本語のままファイル名として使用
  */
 export function categoryToSlug(category: string): string {
-  // 日本語文字をローマ字に変換する簡易的なマッピング
-  const japaneseToRoman: { [key: string]: string } = {
-    'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
-    'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
-    'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
-    'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
-    'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
-    'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
-    'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
-    'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
-    'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
-    'わ': 'wa', 'を': 'wo', 'ん': 'n',
-    'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
-    'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
-    'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
-    'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
-    'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
-    'きゃ': 'kya', 'きゅ': 'kyu', 'きょ': 'kyo',
-    'しゃ': 'sha', 'しゅ': 'shu', 'しょ': 'sho',
-    'ちゃ': 'cha', 'ちゅ': 'chu', 'ちょ': 'cho',
-    'にゃ': 'nya', 'にゅ': 'nyu', 'にょ': 'nyo',
-    'ひゃ': 'hya', 'ひゅ': 'hyu', 'ひょ': 'hyo',
-    'みゃ': 'mya', 'みゅ': 'myu', 'みょ': 'myo',
-    'りゃ': 'rya', 'りゅ': 'ryu', 'りょ': 'ryo',
-    'ぎゃ': 'gya', 'ぎゅ': 'gyu', 'ぎょ': 'gyo',
-    'じゃ': 'ja', 'じゅ': 'ju', 'じょ': 'jo',
-    'びゃ': 'bya', 'びゅ': 'byu', 'びょ': 'byo',
-    'ぴゃ': 'pya', 'ぴゅ': 'pyu', 'ぴょ': 'pyo',
-    'テスト': 'test', '未分類': 'uncategorized'
-  };
-
-  let result = category;
+  // 基本的なクリーンアップ
+  let result = category.trim();
   
-  // 既知の日本語単語を置換
-  for (const [japanese, roman] of Object.entries(japaneseToRoman)) {
-    result = result.replace(new RegExp(japanese, 'g'), roman);
+  // 空文字列の場合はデフォルト値を返す
+  if (!result) {
+    return 'category';
   }
   
-  // 残りの日本語文字を除去し、URLフレンドリーな文字列に変換
-  return result
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // 特殊文字を除去
-    .replace(/\s+/g, '-') // スペースをハイフンに変換
-    .replace(/-+/g, '-') // 連続するハイフンを1つに
-    .replace(/^-|-$/g, '') // 先頭と末尾のハイフンを除去
-    || 'category'; // 空文字列の場合はデフォルト値を返す
+  // 日本語のまま返す（URLエンコーディングしない）
+  // 例: "植物" → "植物"
+  return result;
 }
 
 /**
@@ -142,54 +108,20 @@ export function categoryToFilename(category: string): string {
 
 /**
  * タグ名をURLフレンドリーな文字列に変換
+ * 日本語のままファイル名として使用
  */
 export function tagToSlug(tag: string): string {
-  // 日本語文字をローマ字に変換する簡易的なマッピング
-  const japaneseToRoman: { [key: string]: string } = {
-    'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
-    'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
-    'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
-    'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
-    'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
-    'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
-    'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
-    'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
-    'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
-    'わ': 'wa', 'を': 'wo', 'ん': 'n',
-    'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
-    'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
-    'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
-    'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
-    'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
-    'きゃ': 'kya', 'きゅ': 'kyu', 'きょ': 'kyo',
-    'しゃ': 'sha', 'しゅ': 'shu', 'しょ': 'sho',
-    'ちゃ': 'cha', 'ちゅ': 'chu', 'ちょ': 'cho',
-    'にゃ': 'nya', 'にゅ': 'nyu', 'にょ': 'nyo',
-    'ひゃ': 'hya', 'ひゅ': 'hyu', 'ひょ': 'hyo',
-    'みゃ': 'mya', 'みゅ': 'myu', 'みょ': 'myo',
-    'りゃ': 'rya', 'りゅ': 'ryu', 'りょ': 'ryo',
-    'ぎゃ': 'gya', 'ぎゅ': 'gyu', 'ぎょ': 'gyo',
-    'じゃ': 'ja', 'じゅ': 'ju', 'じょ': 'jo',
-    'びゃ': 'bya', 'びゅ': 'byu', 'びょ': 'byo',
-    'ぴゃ': 'pya', 'ぴゅ': 'pyu', 'ぴょ': 'pyo',
-    'テスト': 'test', '未分類': 'uncategorized', '技術': 'technology', 'プログラミング': 'programming'
-  };
-
-  let result = tag;
+  // 基本的なクリーンアップ
+  let result = tag.trim();
   
-  // 既知の日本語単語を置換
-  for (const [japanese, roman] of Object.entries(japaneseToRoman)) {
-    result = result.replace(new RegExp(japanese, 'g'), roman);
+  // 空文字列の場合はデフォルト値を返す
+  if (!result) {
+    return 'tag';
   }
   
-  // 残りの日本語文字を除去し、URLフレンドリーな文字列に変換
-  return result
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // 特殊文字を除去
-    .replace(/\s+/g, '-') // スペースをハイフンに変換
-    .replace(/-+/g, '-') // 連続するハイフンを1つに
-    .replace(/^-|-$/g, '') // 先頭と末尾のハイフンを除去
-    || 'tag'; // 空文字列の場合はデフォルト値を返す
+  // 日本語のまま返す（URLエンコーディングしない）
+  // 例: "樹木医" → "樹木医"
+  return result;
 }
 
 /**
