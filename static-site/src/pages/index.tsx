@@ -2,6 +2,7 @@ import { h } from "preact";
 import { BaseLayout } from "../layouts/base.tsx";
 import { ArticleCard } from "../components/ArticleCard.tsx";
 import { Article } from "../../build/builder.ts";
+import { categoryToSlug, tagToSlug } from "../../build/utils.ts";
 
 interface IndexPageProps {
   articles: Article[];
@@ -39,7 +40,7 @@ export function IndexPage({ articles }: IndexPageProps) {
       <div class="container mx-auto px-4 py-8">
         {/* ヒーローセクション */}
         <section
-          class="text-center mb-12 relative overflow-hidden rounded-lg py-24"
+          class="text-center mb-12 relative overflow-hidden rounded-lg h-64 md:h-80 lg:h-96"
         >
           <div
             aria-hidden="true"
@@ -49,7 +50,8 @@ export function IndexPage({ articles }: IndexPageProps) {
               z-index: 0;
               pointer-events: none;
               background: url('./assets/img/mainvisual.jpg') center center no-repeat;
-              background-size: cover;
+              background-size: contain;
+              background-color: #f8fafc;
               transform: none;
             "
           ></div>
@@ -89,7 +91,7 @@ export function IndexPage({ articles }: IndexPageProps) {
               <div class="space-y-2">
                 {Object.entries(categoryCounts).map(([category, count]) => (
                   <a 
-                    href={`/magnolia/category/${category}.html`}
+                    href={`/magnolia/category/${categoryToSlug(category)}.html`}
                     class="flex justify-between items-center text-gray-600 hover:text-blue-600 transition-colors"
                   >
                     <span>{category}</span>
@@ -105,7 +107,7 @@ export function IndexPage({ articles }: IndexPageProps) {
               <div class="flex flex-wrap gap-2">
                 {popularTags.map(([tag, count]) => (
                   <a 
-                    href={`/magnolia/tags/${tag}.html`}
+                    href={`/magnolia/tags/${tagToSlug(tag)}.html`}
                     class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm hover:bg-blue-200 transition-colors"
                   >
                     #{tag} ({count})

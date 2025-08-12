@@ -1,9 +1,11 @@
-import { log, ensureDir, slugToFilename, categoryToFilename, categoryToSlug, copyFile } from "./utils.ts";
+import { log, ensureDir, slugToFilename, categoryToFilename, categoryToSlug, tagToFilename, tagToSlug, copyFile } from "./utils.ts";
 import { renderToHtml } from "./renderer.ts";
 import { IndexPage } from "../src/pages/index.tsx";
 import { ArticlePage } from "../src/pages/articles/[slug].tsx";
 import { CategoryPage } from "../src/pages/category/[category].tsx";
 import { CategoryIndexPage } from "../src/pages/category/index.tsx";
+import { TagPage } from "../src/pages/tags/[tag].tsx";
+import { TagIndexPage } from "../src/pages/tags/index.tsx";
 
 // 記事データの型定義
 export interface Article {
@@ -228,6 +230,131 @@ async function generateCategoryIndexPage(articles: Article[]): Promise<void> {
 }
 
 /**
+ * タグページを生成
+ */
+async function generateTagPages(articles: Article[]): Promise<void> {
+  try {
+    log('タグページを生成中...');
+    
+    await ensureDir('dist/tags');
+    
+    // タグ別に記事をグループ化
+    const tagGroups = new Map<string, Article[]>();
+    
+    for (const article of articles) {
+      // 各記事のタグを処理
+      for (const tag of article.tags) {
+        // 空のタグや無効なタグをスキップ
+        if (!tag || tag.trim() === '') {
+          continue;
+        }
+        
+        if (!tagGroups.has(tag)) {
+          tagGroups.set(tag, []);
+        }
+        tagGroups.get(tag)!.push(article);
+      }
+    }
+    
+    // 各タグの記事を公開日降順でソート
+    for (const [tag, tagArticles] of tagGroups) {
+      tagArticles.sort((a, b) => 
+        new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime()
+      );
+    }
+    
+    // 各タグのページを生成
+    for (const [tag, tagArticles] of tagGroups) {
+      const itemsPerPage = 10;
+      const totalPages = Math.ceil(tagArticles.length / itemsPerPage);
+      
+      for (let page = 1; page <= totalPages; page++) {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageArticles = tagArticles.slice(startIndex, endIndex);
+        
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+        
+        const html = renderToHtml(TagPage({
+          tag,
+          articles: pageArticles,
+          totalCount: tagArticles.length,
+          currentPage: page,
+          totalPages,
+          hasNextPage,
+          hasPrevPage
+        }));
+        
+        // ファイル名を生成（ページ1の場合はタグ名のみ、それ以外はページ番号付き）
+        const filename = page === 1 
+          ? tagToFilename(tag)
+          : tagToFilename(tag).replace('.html', `-page-${page}.html`);
+        
+        const filepath = `dist/tags/${filename}`;
+        await Deno.writeTextFile(filepath, html);
+      }
+    }
+    
+    log(`タグページ生成完了: ${tagGroups.size}タグ`, 'success');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`タグページ生成エラー: ${errorMessage}`, 'error');
+  }
+}
+
+/**
+ * タグ一覧ページを生成
+ */
+async function generateTagIndexPage(articles: Article[]): Promise<void> {
+  try {
+    log('タグ一覧ページを生成中...');
+    
+    // タグ別に記事をグループ化
+    const tagGroups = new Map<string, Article[]>();
+    
+    for (const article of articles) {
+      // 各記事のタグを処理
+      for (const tag of article.tags) {
+        // 空のタグや無効なタグをスキップ
+        if (!tag || tag.trim() === '') {
+          continue;
+        }
+        
+        if (!tagGroups.has(tag)) {
+          tagGroups.set(tag, []);
+        }
+        tagGroups.get(tag)!.push(article);
+      }
+    }
+    
+    // タグ情報を構築
+    const tags = Array.from(tagGroups.entries()).map(([name, tagArticles]) => {
+      // 最新記事を取得
+      const latestArticle = tagArticles
+        .sort((a, b) => new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime())[0];
+      
+      return {
+        name,
+        count: tagArticles.length,
+        latestArticle
+      };
+    });
+    
+    // 記事数でソート（多い順）
+    tags.sort((a, b) => b.count - a.count);
+    
+    const html = renderToHtml(TagIndexPage({ tags }));
+    await Deno.writeTextFile('dist/tags/index.html', html);
+    
+    log('タグ一覧ページ生成完了', 'success');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`タグ一覧ページ生成エラー: ${errorMessage}`, 'error');
+  }
+}
+
+/**
  * 古い記事ファイルをクリーンアップ
  */
 async function cleanupOldArticleFiles(articles: Article[]): Promise<void> {
@@ -313,6 +440,56 @@ async function cleanupOldCategoryFiles(articles: Article[]): Promise<void> {
 }
 
 /**
+ * 古いタグファイルをクリーンアップ
+ */
+async function cleanupOldTagFiles(articles: Article[]): Promise<void> {
+  try {
+    log('古いタグファイルをクリーンアップ中...');
+    
+    const tagDir = 'dist/tags';
+    
+    // 現在のタグのファイル名リストを作成
+    const currentTagFiles = new Set<string>();
+    for (const article of articles) {
+      for (const tag of article.tags) {
+        if (tag && tag.trim() !== '') {
+          currentTagFiles.add(tagToFilename(tag));
+          // ページネーション用のファイル名も追加
+          currentTagFiles.add(tagToFilename(tag).replace('.html', '-page-2.html'));
+          currentTagFiles.add(tagToFilename(tag).replace('.html', '-page-3.html'));
+          currentTagFiles.add(tagToFilename(tag).replace('.html', '-page-4.html'));
+          currentTagFiles.add(tagToFilename(tag).replace('.html', '-page-5.html'));
+        }
+      }
+    }
+    
+    // 既存のタグファイルをチェック
+    try {
+      for await (const entry of Deno.readDir(tagDir)) {
+        if (entry.isFile && entry.name.endsWith('.html')) {
+          // index.htmlは除外
+          if (entry.name === 'index.html') continue;
+          
+          // 現在のタグファイルリストに存在しない場合は削除
+          if (!currentTagFiles.has(entry.name)) {
+            const filepath = `${tagDir}/${entry.name}`;
+            await Deno.remove(filepath);
+            log(`古いタグファイルを削除: ${entry.name}`, 'info');
+          }
+        }
+      }
+    } catch {
+      // ディレクトリが存在しない場合は何もしない
+    }
+    
+    log('古いタグファイルのクリーンアップ完了', 'success');
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    log(`古いタグファイルクリーンアップエラー: ${errorMessage}`, 'error');
+  }
+}
+
+/**
  * アセットファイルをコピー
  */
 async function copyAssets(): Promise<void> {
@@ -356,10 +533,13 @@ export async function build(): Promise<void> {
     await generateArticlePages(articles);
     await generateCategoryPages(articles);
     await generateCategoryIndexPage(articles);
+    await generateTagPages(articles);
+    await generateTagIndexPage(articles);
     
     // 古い記事ファイルをクリーンアップ
     await cleanupOldArticleFiles(articles);
     await cleanupOldCategoryFiles(articles);
+    await cleanupOldTagFiles(articles);
     
     // アセットファイルをコピー
     await copyAssets();
