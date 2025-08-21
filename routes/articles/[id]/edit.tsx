@@ -1,7 +1,7 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { Article } from "../../../types/article.ts";
 import { requireAuth } from "../../../utils/auth-helper.ts";
-import { getArticle, updateArticle } from "../../../utils/kv.ts";
+import { getArticle, updateArticle, convertBrToNewlines } from "../../../utils/kv.ts";
 
 interface Data {
   article?: Article;
@@ -26,7 +26,13 @@ export const handler: Handlers<Data> = {
         return ctx.render({ error: "記事が見つかりません" });
       }
       
-      return ctx.render({ article });
+      // 本文の<br>タグを改行に変換して編集用に準備
+      const articleForEdit = {
+        ...article,
+        body: convertBrToNewlines(article.body)
+      };
+      
+      return ctx.render({ article: articleForEdit });
     } catch (error) {
       console.error("記事取得エラー:", error);
       return ctx.render({ error: "記事の取得に失敗しました" });
@@ -85,6 +91,7 @@ export const handler: Handlers<Data> = {
       };
 
       // 直接KVで記事を更新
+      // 注意: updateArticle関数内でsaveArticleが呼ばれ、改行が<br>タグに自動変換されます
       await updateArticle(id, articleData);
       
       // 更新された記事を取得

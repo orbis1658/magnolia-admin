@@ -73,6 +73,7 @@ export const handler: Handlers = {
       }
 
       // 記事オブジェクトを作成
+      // 注意: saveArticle関数内で改行が<br>タグに自動変換されます
       const now = new Date().toISOString();
       const article: Article = {
         id: generateId(),
@@ -81,7 +82,7 @@ export const handler: Handlers = {
         pub_date: body.pub_date || now,
         category: body.category || "未分類",
         tags: body.tags || [],
-        body: body.body,
+        body: body.body, // 改行文字がそのまま渡される（saveArticleで変換される）
         created_at: now,
         updated_at: now,
       };

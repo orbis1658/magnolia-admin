@@ -150,6 +150,7 @@ export const handler: Handlers = {
       }
 
       // KVで記事を更新
+      // 注意: updateArticle関数内でsaveArticleが呼ばれ、改行が<br>タグに自動変換されます
       await updateArticle(id, body);
 
       return new Response(

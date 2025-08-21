@@ -38,6 +38,21 @@ export async function getKv() {
   }
 }
 
+// 改行変換ユーティリティ
+/**
+ * 改行文字を<br>タグに変換（記事保存時）
+ */
+export function convertNewlinesToBr(text: string): string {
+  return text.replace(/\n/g, '<br>');
+}
+
+/**
+ * <br>タグを改行文字に変換（記事編集時）
+ */
+export function convertBrToNewlines(text: string): string {
+  return text.replace(/<br\s*\/?>/gi, '\n');
+}
+
 // 記事の保存
 export async function saveArticle(article: Article): Promise<void> {
   const kv = await getKv();
@@ -48,18 +63,24 @@ export async function saveArticle(article: Article): Promise<void> {
     throw new Error(`スラッグ "${article.slug}" は既に使用されています`);
   }
   
+  // 本文の改行を<br>タグに変換
+  const processedArticle = {
+    ...article,
+    body: convertNewlinesToBr(article.body)
+  };
+  
   // 記事を保存
-  await kv.set(["articles", article.id], article);
+  await kv.set(["articles", processedArticle.id], processedArticle);
   
   // スラッグでインデックスを作成
-  await kv.set(["articles_by_slug", article.slug], article.id);
+  await kv.set(["articles_by_slug", processedArticle.slug], processedArticle.id);
   
   // カテゴリでインデックスを作成
-  await kv.set(["articles_by_category", article.category, article.id], article);
+  await kv.set(["articles_by_category", processedArticle.category, processedArticle.id], processedArticle);
   
   // タグでインデックスを作成
-  for (const tag of article.tags) {
-    await kv.set(["articles_by_tag", tag, article.id], article);
+  for (const tag of processedArticle.tags) {
+    await kv.set(["articles_by_tag", tag, processedArticle.id], processedArticle);
   }
 }
 
