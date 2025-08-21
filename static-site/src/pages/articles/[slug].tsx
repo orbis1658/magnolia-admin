@@ -17,20 +17,44 @@ export function ArticlePage({ article, relatedArticles = [] }: ArticlePageProps)
     });
   };
 
+  // HTMLタグを除去し、<br>タグを改行に変換する関数
+  const stripHtmlAndConvertBreaks = (html: string): string => {
+    // <br>タグを改行文字に変換
+    let text = html.replace(/<br\s*\/?>/gi, '\n');
+    // その他のHTMLタグを除去
+    text = text.replace(/<[^>]*>/g, '');
+    // HTMLエンティティをデコード
+    text = text.replace(/&amp;/g, '&');
+    text = text.replace(/&lt;/g, '<');
+    text = text.replace(/&gt;/g, '>');
+    text = text.replace(/&quot;/g, '"');
+    text = text.replace(/&#39;/g, "'");
+    text = text.replace(/&nbsp;/g, ' ');
+    return text;
+  };
+
   return (
     <BaseLayout 
       title={article.title}
-      description={article.body.length > 160 ? article.body.substring(0, 160) + '...' : article.body}
+      description={article.body.length > 160 ? stripHtmlAndConvertBreaks(article.body).substring(0, 160) + '...' : stripHtmlAndConvertBreaks(article.body)}
       keywords={article.tags.join(', ')}
     >
       <div class="container mx-auto px-4 py-8">
         <article class="max-w-4xl mx-auto">
-          {/* パンくずリスト */}
+          {/* パンくずナビゲーション */}
           <nav class="mb-6">
             <ol class="flex items-center space-x-2 text-sm text-gray-600">
-              <li><a href="/magnolia/" class="hover:text-blue-600">ホーム</a></li>
+              <li>
+                <a href="/magnolia/" class="hover:text-blue-600">
+                  ホーム
+                </a>
+              </li>
               <li>/</li>
-              <li><a href="/magnolia/articles" class="hover:text-blue-600">記事</a></li>
+              <li>
+                <a href="/magnolia/articles" class="hover:text-blue-600">
+                  記事
+                </a>
+              </li>
               <li>/</li>
               <li class="text-gray-900">{article.title}</li>
             </ol>
@@ -85,27 +109,31 @@ export function ArticlePage({ article, relatedArticles = [] }: ArticlePageProps)
             <section class="mt-12 pt-8 border-t">
               <h2 class="text-2xl font-bold mb-6">関連記事</h2>
               <div class="grid md:grid-cols-2 gap-6">
-                {relatedArticles.slice(0, 4).map(relatedArticle => (
-                  <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h3 class="text-lg font-semibold mb-2">
-                      <a 
-                        href={`/magnolia/articles/${relatedArticle.slug}.html`}
-                        class="text-blue-600 hover:text-blue-800 transition-colors"
-                      >
-                        {relatedArticle.title}
-                      </a>
-                    </h3>
-                    <p class="text-gray-600 text-sm mb-2">
-                      {formatDate(relatedArticle.pub_date)}
-                    </p>
-                    <p class="text-gray-700 text-sm">
-                      {relatedArticle.body.length > 100 
-                        ? `${relatedArticle.body.substring(0, 100)}...` 
-                        : relatedArticle.body
-                      }
-                    </p>
-                  </div>
-                ))}
+                {relatedArticles.slice(0, 4).map(relatedArticle => {
+                  const plainTextBody = stripHtmlAndConvertBreaks(relatedArticle.body);
+                  const displayText = plainTextBody.length > 100 
+                    ? `${plainTextBody.substring(0, 100)}...` 
+                    : plainTextBody;
+                  
+                  return (
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <h3 class="text-lg font-semibold mb-2">
+                        <a 
+                          href={`/magnolia/articles/${relatedArticle.slug}.html`}
+                          class="text-blue-600 hover:text-blue-800 transition-colors"
+                        >
+                          {relatedArticle.title}
+                        </a>
+                      </h3>
+                      <p class="text-gray-600 text-sm mb-2">
+                        {formatDate(relatedArticle.pub_date)}
+                      </p>
+                      <p class="text-gray-700 text-sm whitespace-pre-line">
+                        {displayText}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </section>
           )}

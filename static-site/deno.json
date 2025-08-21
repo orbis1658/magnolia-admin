@@ -9,7 +9,7 @@
     "preact-render-to-string": "https://esm.sh/preact-render-to-string@6.2.2"
   },
   "tasks": {
-    "build": "deno run --allow-net --allow-read --allow-write build.ts",
-    "dev": "deno run --allow-net --allow-read --allow-write --watch build.ts"
+    "build": "deno run --allow-net --allow-read --allow-write --allow-env build.ts",
+    "dev": "deno run --allow-net --allow-read --allow-write --allow-env --watch build.ts"
   }
 } 
